@@ -64,6 +64,7 @@ namespace OnlineShop.Controllers
                              Suspension = a.FSuspension,
                              CreateDate = a.FCreateDate,
                              UpdateDate = a.FUpdateDate
+
                          }).SingleOrDefault();
 
             return result;
