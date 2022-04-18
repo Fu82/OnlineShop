@@ -23,7 +23,7 @@ namespace OnlineShop.Controllers
             return View();
         }
 
-        public IActionResult Signup()
+        public IActionResult AddMember()
         {
             return View();
         }
