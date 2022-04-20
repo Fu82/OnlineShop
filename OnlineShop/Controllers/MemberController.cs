@@ -33,27 +33,6 @@ namespace OnlineShop.Controllers
         [HttpGet]
         public IEnumerable<MemberSelectDto> Get()
         {
-           /* SqlCommand cmd = null;
-            DataTable dt = new DataTable();
-
-            //// 資料庫連線
-            cmd = new SqlCommand();
-            cmd.Connection = new SqlConnection("Server = I594; Database = OnlineShop; Trusted_Connection = True;");
-
-            cmd.CommandText = @"EXEC pro_onlineShop_addMember @f_acc, @f_pwd, @f_phone, @f_mail";
-            cmd.Parameters.AddWithValue("@f_acc", value.)
-
-            SqlDataAdapter da = new SqlDataAdapter();*/
-
-            
-
-            ////開啟連線
-            //cmd.Connection.Open();
-
-            //da.SelectCommand = cmd;
-            //da.Fill(dt);
-            //cmd.Connection.Close();
-
             var result = _OnlineShopContext.TMember
                 .Select(a => new MemberSelectDto
                 {
@@ -79,7 +58,7 @@ namespace OnlineShop.Controllers
         public string Post([FromBody] MemberSelectDto value)
         {
             SqlCommand cmd = null;
-            DataTable dt = new DataTable();
+            //DataTable dt = new DataTable();
 
             try
             {
@@ -93,7 +72,7 @@ namespace OnlineShop.Controllers
                 cmd.Parameters.AddWithValue("@f_phone", value.Phone);
                 cmd.Parameters.AddWithValue("@f_mail", value.Mail);
 
-                SqlDataAdapter da = new SqlDataAdapter();
+                //SqlDataAdapter da = new SqlDataAdapter();
 
                 //開啟連線
                 cmd.Connection.Open();
@@ -109,21 +88,52 @@ namespace OnlineShop.Controllers
                 }
             }
 
+            #region 舊寫法MD5
+            //using (var md5 = MD5.Create())
+            //{
+            //    var result = md5.ComputeHash(Encoding.ASCII.GetBytes(value.Pwd));//MD5 加密傳密碼進去
+
+            //    var strResult = BitConverter.ToString(result);
+
+            //    var user = (from a in _OnlineShopContext.TMember
+            //                where a.FAcc == value.Account
+            //                && a.FPwd == strResult.Replace("-", "")
+            //                select a).SingleOrDefault();
+
+            //    if (user == null)
+            //    {
+            //        return "帳號密碼錯誤";
+            //    }
+            //    else
+            //    {
+            //        //這邊等等寫驗證
+            //        var claims = new List<Claim>
+            //    {
+            //        new Claim(ClaimTypes.Name, user.FAcc),
+            //    };
+            //        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            //        HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+            //        return "OK";
+            //    }
+            //}
+            #endregion
+
             return "新增成功";
         }
 
-        public static bool IsMaill(string value)
-        {
-            try
-            {
-                var addr = new System.Net.Mail.MailAddress(value);
-                return addr.Address.ToUpper() == value.ToUpper();
-            }
-            catch
-            {
-                return false;
-            }
-        }
+        ////Mail判斷(測試)
+        //public static bool IsMaill(string value)
+        //{
+        //    try
+        //    {
+        //        var addr = new System.Net.Mail.MailAddress(value);
+        //        return addr.Address.ToUpper() == value.ToUpper();
+        //    }
+        //    catch
+        //    {
+        //        return false;
+        //    }
+        //}
 
         // PUT api/<MemberController>/5
         [HttpPut("{id}")]
@@ -137,6 +147,7 @@ namespace OnlineShop.Controllers
         {
         }
 
+        //MD5加密
         public string PwdToMD5(string pwd)
         {
             var md5 = MD5.Create();

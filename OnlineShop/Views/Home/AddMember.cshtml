@@ -8,19 +8,19 @@
     <div class="panel-body">
         <div class="form-group">
             <label>帳號</label>
-            <input id="Account" type="text" class="form-control">
+            <input id="txtAccount" type="text" class="form-control">
         </div>
         <div class="form-group">
             <label>密碼</label>
-            <input id="PassWord" type="password" class="form-control">
+            <input id="passWord" type="password" class="form-control">
         </div>
         <div class="form-group">
             <label>手機號碼</label>
-            <input id="Phone" type="text" class="form-control">
+            <input id="txtPhone" type="text" class="form-control">
         </div>
         <div class="form-group">
             <label>信箱</label>
-            <input id="Mail" type="text" class="form-control">
+            <input id="txtMail" type="text" class="form-control">
         </div>
         @*<div class="form-group">
             <label>信箱認證碼</label>
@@ -28,23 +28,23 @@
         </div>*@
     </div>
     <div class="panel-footer">
-        <button id="Post" type="button" class="btn btn-primary">註冊</button>
+        <button id="btnPost" type="button" class="btn btn-primary">註冊</button>
     </div>
 </div>
 
 <script>
     $(document).ready(function (data) {
-        $("#Post").click(function () {
+        $("#btnPost").click(function () {
             $.ajax({
                 url: "/api/Member",
                 type: "post",
                 contentType: "application/json",
                 dataType: "text",
                 data: JSON.stringify({
-                    "Account": $("#Account").val(),
-                    "Pwd": $("#PassWord").val(),
-                    "Phone": $("#Phone").val(),
-                    "Mail": $("#Mail").val()
+                    "Account": $("#txtAccount").val(),
+                    "Pwd": $("#passWord").val(),
+                    "Phone": $("#txtPhone").val(),
+                    "Mail": $("#txtMail").val()
                 }),
                 success: function (result) {
                     alert(result)
