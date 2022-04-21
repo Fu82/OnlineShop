@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OnlineShop.ValidationAttributes;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace OnlineShop.DTOs

@@ -1,5 +1,10 @@
 ﻿$(document).ready(function (data) {
     $("#btnPost").click(function () {
+
+
+        //if(xxxxx)
+
+
         $.ajax({
             url: "/api/Login",
             type: "post",
@@ -15,6 +20,13 @@
             error: function (error) {
                 alert(error);
             }
+        }).done(function (res) {
+            $("#dvMsg").text(res);
         });
+
+
+        //xxx
+
+
     });
 });

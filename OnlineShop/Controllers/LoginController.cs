@@ -46,7 +46,7 @@ namespace OnlineShop.Controllers
                 cmd.CommandText = @"EXEC pro_onlineShop_getMember @f_acc, @f_pwd";
 
                 cmd.Parameters.AddWithValue("@f_acc", value.Account);
-                cmd.Parameters.AddWithValue("@f_pwd", PwdToMD5(value.Pwd));
+                cmd.Parameters.AddWithValue("@f_pwd", Tool.InTool.PwdToMD5(value.Pwd));
 
                 SqlDataAdapter da = new SqlDataAdapter();
 
@@ -75,6 +75,7 @@ namespace OnlineShop.Controllers
                 }
             }
 
+            #region 舊寫法MD5
             //using (var md5 = MD5.Create())
             //{
             //    var result = md5.ComputeHash(Encoding.ASCII.GetBytes(value.Pwd));//MD5 加密傳密碼進去
@@ -102,6 +103,7 @@ namespace OnlineShop.Controllers
             //        return "OK";
             //    }
             //}
+            #endregion
         }
 
         [HttpDelete]
@@ -113,16 +115,6 @@ namespace OnlineShop.Controllers
         public string noLogin()
         {
             return "未登入";
-        }
-
-        //MD5加密
-        public string PwdToMD5(string pwd)
-        {
-            var md5 = MD5.Create();
-            var result = md5.ComputeHash(Encoding.ASCII.GetBytes(pwd));//MD5 加密傳密碼進去
-            var strResult = BitConverter.ToString(result);
-            var md5pwd = strResult.Replace("-", "");
-            return md5pwd;
         }
     }
 }

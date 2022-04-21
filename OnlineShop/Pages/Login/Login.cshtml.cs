@@ -9,8 +9,14 @@ namespace OnlineShop.Pages
 {
     public class LoginModel : PageModel
     {
+        public string Message { get; set; }
         public void OnGet()
         {
+        }
+
+        public IActionResult OnPostReadMsg()
+        {
+            return Content(":AjaxPost");
         }
     }
 }

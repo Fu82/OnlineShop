@@ -68,7 +68,7 @@ namespace OnlineShop.Controllers
 
                 cmd.CommandText = @"EXEC pro_onlineShop_addMember @f_acc, @f_pwd, @f_phone, @f_mail";
                 cmd.Parameters.AddWithValue("@f_acc", value.Account);
-                cmd.Parameters.AddWithValue("@f_pwd", PwdToMD5(value.Pwd));
+                cmd.Parameters.AddWithValue("@f_pwd", Tool.InTool.PwdToMD5(value.Pwd));
                 cmd.Parameters.AddWithValue("@f_phone", value.Phone);
                 cmd.Parameters.AddWithValue("@f_mail", value.Mail);
 
@@ -145,16 +145,6 @@ namespace OnlineShop.Controllers
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
-        }
-
-        //MD5加密
-        public string PwdToMD5(string pwd)
-        {
-            var md5 = MD5.Create();
-            var result = md5.ComputeHash(Encoding.ASCII.GetBytes(pwd));//MD5 加密傳密碼進去
-            var strResult = BitConverter.ToString(result);
-            var md5pwd = strResult.Replace("-", "");
-            return md5pwd;
-        }       
+        }   
     }
 }
