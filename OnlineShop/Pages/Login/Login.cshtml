@@ -5,23 +5,23 @@
 }
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
-
-<div class="panel panelPrimary">
-    <div class="panelBody">
-        <div class="formGroup">
-            <label>帳號</label>
-            <input id="txtAccount" type="text" class="formControl" maxlength="20">
+<form id="form1" name="form1">
+    <div class="panel panelPrimary">
+        <div class="panelBody">
+            <div class="formGroup">
+                <label>帳號</label>
+                <input id="txtAccount" name="account" type="text" class="formControl" maxlength="20">
+            </div>
+            <div class="formGroup">
+                <label>密碼</label>
+                <input id="passWord" name="password" type="password" class="formControl">
+            </div>
         </div>
-        <div class="formGroup">
-            <label>密碼</label>
-            <input id="passWord" type="password" class="formControl">
+        <div class="panelFooter">
+            <button id="btnPost" type="button" class="btn btnPrimary">登入</button>
+            @Html.ActionLink("忘記密碼", "ForgetPwd", "Home")
         </div>
     </div>
-    <div class="panelFooter">
-        <button id="btnPost" type="button" class="btn btnPrimary">登入</button>
-        @Html.ActionLink("忘記密碼", "ForgetPwd", "Home")
-    </div>
-    <div id="dvMsg">@Model.Message</div>
-</div>
+</form>
 
 <script src="~/js/Login.js"></script>

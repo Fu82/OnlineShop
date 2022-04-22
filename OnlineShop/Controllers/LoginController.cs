@@ -34,6 +34,21 @@ namespace OnlineShop.Controllers
         [HttpPost]
         public string Login(MemberSelectDto value)
         {
+            //string LoginResult = ""; 
+
+            //if (value.Account == "" || value.Pwd == "")
+            //{
+            //    LoginResult = "帳號密碼不可為空";
+            //}
+
+            //if(value.Account == "")
+            //{
+            //    if (123)
+            //    {
+            //        LoginResult = "帳號不可以為...";
+            //    }
+            //}
+
             SqlCommand cmd = null;
             DataTable dt = new DataTable();
 
