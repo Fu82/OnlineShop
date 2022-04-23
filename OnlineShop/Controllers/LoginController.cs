@@ -6,15 +6,9 @@ using Microsoft.Extensions.Configuration;
 using MyNet5ApiAdoTest.Services;
 using OnlineShop.DTOs;
 using OnlineShop.Models;
+using OnlineShop.Tool;
 using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace OnlineShop.Controllers
 {
@@ -34,59 +28,97 @@ namespace OnlineShop.Controllers
         [HttpPost]
         public string Login(MemberSelectDto value)
         {
-            //string LoginResult = ""; 
+            //後端驗證
 
-            //if (value.Account == "" || value.Pwd == "")
-            //{
-            //    LoginResult = "帳號密碼不可為空";
-            //}
+            string loginError = "";
 
-            //if(value.Account == "")
-            //{
-            //    if (123)
-            //    {
-            //        LoginResult = "帳號不可以為...";
-            //    }
-            //}
-
-            SqlCommand cmd = null;
-            DataTable dt = new DataTable();
-
-            try
+            if (value.Account == "" && value.Pwd == "")
             {
-                // 資料庫連線
-                cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
-
-                cmd.CommandText = @"EXEC pro_onlineShop_getMember @f_acc, @f_pwd";
-
-                cmd.Parameters.AddWithValue("@f_acc", value.Account);
-                cmd.Parameters.AddWithValue("@f_pwd", Tool.InTool.PwdToMD5(value.Pwd));
-
-                SqlDataAdapter da = new SqlDataAdapter();
-
-                //開啟連線
-                cmd.Connection.Open();
-
-                da.SelectCommand = cmd;
-                da.Fill(dt);
-                cmd.Connection.Close();
-
-                if(dt.Rows.Count == 0)
+                loginError += "【 🚫欄位必填 】\n";
+            }
+            
+            if (value.Account != "")
+            {
+                if (!InTool.IsENAndNumber(value.Account))
                 {
-                    return "帳號密碼錯誤";
+                    loginError += "【 🚫帳號只能為英數 】";
                 }
-                else
+                if(value.Account.Length > 20 || value.Account.Length < 8)
                 {
-                    return "登入成功";
+                    loginError += "【 🚫帳號長度應介於8～20個數字之間 】\n";
                 }
             }
-            finally
+            else
             {
-                if (cmd != null)
+                loginError += "【 🚫帳號未填 】\n";
+            };
+
+            if (value.Pwd != "")
+            {
+                if (!InTool.IsENAndNumber(value.Pwd))
                 {
-                    cmd.Parameters.Clear();
+                    loginError += "【 🚫密碼只能為英數 】\n";
+                }
+                if (value.Pwd.Length > 16 || value.Pwd.Length < 8)
+                {
+                    loginError += "【 🚫密碼長度應介於8～16個數字之間 】\n";
+                }
+            }
+            else
+            {
+                loginError += "【 🚫密碼未填 】\n";
+            };
+
+            if (loginError != "")
+            {
+                return loginError;
+            }
+            else
+            {
+                SqlCommand cmd = null;
+                DataTable dt = new DataTable();
+
+                try
+                {
+                    // 資料庫連線
+                    cmd = new SqlCommand();
+                    cmd.Connection = new SqlConnection(SQLConnectionString);
+
+                    cmd.CommandText = @"EXEC pro_onlineShop_getMember @f_acc, @f_pwd";
+
+                    cmd.Parameters.AddWithValue("@f_acc", value.Account);
+                    cmd.Parameters.AddWithValue("@f_pwd", Tool.InTool.PwdToMD5(value.Pwd));
+
+                    SqlDataAdapter da = new SqlDataAdapter();
+
+                    //開啟連線
+                    cmd.Connection.Open();
+
+                    da.SelectCommand = cmd;
+                    da.Fill(dt);
                     cmd.Connection.Close();
+
+                    if (dt.Rows.Count == 0)
+                    {
+                        return "帳號密碼錯誤";
+                    }
+                    else
+                    {
+                        return "登入成功";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ex.ToString();
+                    return "123";
+                }
+                finally
+                {
+                    if (cmd != null)
+                    {
+                        cmd.Parameters.Clear();
+                        cmd.Connection.Close();
+                    }
                 }
             }
 

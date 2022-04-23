@@ -1,17 +1,21 @@
 ﻿$(document).ready(function (data) {
     $("#btnPost").click(function () {
+        //前端驗證
         if ($("#txtAccount").val() == "" && $("#passWord").val() == "")
         {
             alert("帳號密碼必填");
         }
+
         else if ($("#txtAccount").val() == "")
         {
             alert("帳號必填");
         }
+
         else if ($("#passWord").val() == "")
         {
             alert("密碼必填");
         }
+
         else
         {
             $.ajax({
