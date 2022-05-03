@@ -2,12 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace OnlineShop.Views.Home
+namespace OnlineShop.Pages
 {
-    public class ForgetPwdModel : PageModel
+    [Authorize]
+    public class LoginDataModel : PageModel
     {
         public void OnGet()
         {

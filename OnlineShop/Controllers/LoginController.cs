@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
@@ -8,12 +9,15 @@ using OnlineShop.DTOs;
 using OnlineShop.Models;
 using OnlineShop.Tool;
 using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Security.Claims;
 
 namespace OnlineShop.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [AllowAnonymous]
     public class LoginController : ControllerBase
     {
         private readonly OnlineShopContext _OnlineShopContext;
@@ -28,55 +32,59 @@ namespace OnlineShop.Controllers
         [HttpPost]
         public string Login(MemberSelectDto value)
         {
-            //後端驗證
-
-            string loginError = "";
-
-            if (value.Account == "" && value.Pwd == "")
+            //查詢伺服器狀態是否正常
+            if (ModelState.IsValid == false)
             {
-                loginError += "【 🚫欄位必填 】\n";
+                /*****/
+                return "輸入參數有誤";
             }
-            
-            if (value.Account != "")
+
+            string loginErrorStr = "";//記錄錯誤訊息
+
+            //帳號資料驗證
+            if (value.Account == "" || (string.IsNullOrEmpty(value.Account)))
+            {
+                loginErrorStr += "【 帳號不可為空 】\n";
+            }
+            else
             {
                 if (!InTool.IsENAndNumber(value.Account))
                 {
-                    loginError += "【 🚫帳號只能為英數 】";
+                    loginErrorStr += "【 🚫帳號只能為英數 】\n";
                 }
-                if(value.Account.Length > 20 || value.Account.Length < 8)
+                if (value.Account.Length > 20 || value.Account.Length < 3)
                 {
-                    loginError += "【 🚫帳號長度應介於8～20個數字之間 】\n";
+                    loginErrorStr += "【 🚫帳號長度應介於8～20個數字之間 】\n";
                 }
-            }
-            else
-            {
-                loginError += "【 🚫帳號未填 】\n";
             };
 
-            if (value.Pwd != "")
+            //密碼資料驗證
+            if (value.Pwd == "" || (string.IsNullOrEmpty(value.Pwd)))
+            {
+                loginErrorStr += "【 密碼不可為空 】\n";
+            }
+            else
             {
                 if (!InTool.IsENAndNumber(value.Pwd))
                 {
-                    loginError += "【 🚫密碼只能為英數 】\n";
+                    loginErrorStr += "【 🚫密碼只能為英數 】\n";
                 }
                 if (value.Pwd.Length > 16 || value.Pwd.Length < 8)
                 {
-                    loginError += "【 🚫密碼長度應介於8～16個數字之間 】\n";
+                    loginErrorStr += "【 🚫密碼長度應介於8～16個數字之間 】\n";
                 }
             }
-            else
-            {
-                loginError += "【 🚫密碼未填 】\n";
-            };
 
-            if (loginError != "")
+            //錯誤訊息不為空
+            if (loginErrorStr != "")
             {
-                return loginError;
+                return loginErrorStr;
             }
             else
             {
                 SqlCommand cmd = null;
                 DataTable dt = new DataTable();
+                SqlDataAdapter da = new SqlDataAdapter();
 
                 try
                 {
@@ -89,28 +97,41 @@ namespace OnlineShop.Controllers
                     cmd.Parameters.AddWithValue("@f_acc", value.Account);
                     cmd.Parameters.AddWithValue("@f_pwd", Tool.InTool.PwdToMD5(value.Pwd));
 
-                    SqlDataAdapter da = new SqlDataAdapter();
-
                     //開啟連線
                     cmd.Connection.Open();
 
-                    da.SelectCommand = cmd;
-                    da.Fill(dt);
-                    cmd.Connection.Close();
-
-                    if (dt.Rows.Count == 0)
+                    if (cmd.ExecuteScalar() == null)
                     {
-                        return "帳號密碼錯誤";
+                        return "LoginFail"; //登入失敗
                     }
                     else
                     {
-                        return "登入成功";
+                        da.SelectCommand = cmd;
+                        da.Fill(dt);
+
+                        //添加角色權限
+                        var claims = new List<Claim>
+                        {
+                           new Claim(ClaimTypes.Name, value.Account)
+                        };
+
+                        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                        HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+
+                        if (User.Identity.IsAuthenticated)
+                        {
+                            return "以重複登入";
+                        }
+                        else
+                        {
+                            return "LoginOK"; //登入成功
+                        }
                     }
                 }
                 catch (Exception ex)
                 {
                     ex.ToString();
-                    return "123";
+                    return "LoginErr";
                 }
                 finally
                 {
@@ -153,8 +174,8 @@ namespace OnlineShop.Controllers
             #endregion
         }
 
-        [HttpDelete]
-        public void Logout()
+        [HttpDelete("Logout")]
+        public void logout()
         {
             HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         }

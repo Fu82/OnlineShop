@@ -1,10 +1,33 @@
 ﻿@page
 @model OnlineShop.Pages.IndexModel
 @{
-    ViewData["Title"] = "Home page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+@if (User.Identity.IsAuthenticated)
+{
+}
+else
+{
+    <form id="form1" name="form1">
+        <div class="panel panelPrimary">
+            <div class="panelBody">
+                <div class="formGroup">
+                    <label>帳號</label>
+                    <input id="txtAccount" type="text" class="formControl">
+                </div>
+                <div class="formGroup">
+                    <label>密碼</label>
+                    <input id="passWord" type="password" class="formControl">
+                </div>
+            </div>
+            <div class="panelFooter">
+                <button id="btnPost" type="button" class="btn btnPrimary">登入</button>
+                @Html.ActionLink("忘記密碼", "ForgetPwd", "Home")
+            </div>
+        </div>
+    </form>
+}
+
+<script src="~/js/Login.js"></script>

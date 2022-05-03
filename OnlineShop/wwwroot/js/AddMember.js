@@ -1,6 +1,5 @@
 ﻿$(document).ready(function (data) {
     $("#btnPost").click(function () {
-
         if ($("#txtAccount").val() == "" && $("#passWord").val() == "" && $("#txtPhone").val() == "" && $("#txtMail").val() == "") {
             alert("必填");
         }
@@ -19,7 +18,7 @@
         else
         {
             $.ajax({
-                url: "/api/Member",
+                url: "/api/Member/AddAcc",
                 type: "post",
                 contentType: "application/json",
                 dataType: "text",
@@ -30,7 +29,13 @@
                     "Mail": $("#txtMail").val()
                 }),
                 success: function (result) {
-                    alert(result)
+                    alert(result);
+                    if (result == "帳號新增成功") {
+                        location.href = "/Login/Login"
+                    }
+                    else {
+                        alert(result)
+                    }
                 },
                 error: function (error) {
                     alert(error);

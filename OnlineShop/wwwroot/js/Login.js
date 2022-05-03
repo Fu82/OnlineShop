@@ -1,6 +1,5 @@
 ﻿$(document).ready(function (data) {
     $("#btnPost").click(function () {
-        //前端驗證
         if ($("#txtAccount").val() == "" && $("#passWord").val() == "")
         {
             alert("帳號密碼必填");
@@ -28,7 +27,12 @@
                     "Pwd": $("#passWord").val()
                 }),
                 success: function (result) {
-                    alert(result)
+                    if (result == "LoginOK") {
+                        location.href = "/LoginData";
+                    }
+                    else {
+                        alert(result);
+                    }
                 },
                 error: function (error) {
                     alert(error);

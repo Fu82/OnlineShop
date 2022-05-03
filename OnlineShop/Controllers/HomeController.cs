@@ -33,6 +33,11 @@ namespace OnlineShop.Controllers
             return View();
         }
 
+        public IActionResult LoginData()
+        {
+            return View();
+        }
+
         public IActionResult ForgetPwd()
         {
             return View();

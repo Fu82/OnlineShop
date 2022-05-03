@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using MyNet5ApiAdoTest.Services;
@@ -16,206 +17,143 @@ namespace OnlineShop.Controllers
     public class MemberController : ControllerBase
     {
 
-        private readonly OnlineShopContext _OnlineShopContext;
-        public MemberController(OnlineShopContext onlineShopContext)
-        {
-            _OnlineShopContext = onlineShopContext;
-        }
-
         //SQL連線字串 SQLConnectionString
         private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
 
-        // GET: api/<MemberController>
-        [HttpGet]
-        public IEnumerable<MemberSelectDto> Get()
+        #region 帳號相關列舉(Enum)
+        private enum addACCountErrorCode //新增帳號
         {
-            var result = _OnlineShopContext.TMember
-                .Select(a => new MemberSelectDto
-                {
-                    Id = a.FId,
-                    Account = a.FAcc,
-                    Pwd = a.FPwd,
-                    Phone = a.FPhone,
-                    Mail = a.FMail
-                });
+            //<summary >
+            //帳號新增成功
+            //</summary >
+            AddOK = 0,
 
-            return result;
+            //<summary >
+            //帳號重複
+            //</summary >
+            duplicateAccount = 101
         }
+        #endregion
 
-        // GET api/<MemberController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/<MemberController>
-        [HttpPost]
-        public string Post([FromBody] MemberSelectDto value)
+        [HttpPost("AddAcc")]
+        public string AddAcc([FromBody] MemberSelectDto value)
         {
             //後端驗證
+            //如字串字數特殊字元驗證
 
-            string addMemberError = "";
+            string addMemberErrorStr = ""; //記錄錯誤訊息
 
-            if (value.Account == "" && value.Pwd == "" && value.Phone == "" && value.Mail == "")
+            //帳號資料驗證
+            if (string.IsNullOrEmpty(value.Account)) //空字串判斷and Null值判斷皆用IsNullOrEmpty
             {
-                addMemberError += "【 🚫欄位必填 】\n";
+                addMemberErrorStr += "【 🚫帳號不可為空 】\n";
             }
-            
-            if (value.Account != "")
+            else
             {
                 if (!InTool.IsENAndNumber(value.Account))
                 {
-                    addMemberError += "【 🚫帳號只能為英數 】";
+                    addMemberErrorStr += "【 🚫帳號只能為英數 】";
                 }
-                if(value.Account.Length > 20 || value.Account.Length < 8)
+                if (value.Account.Length > 20 || value.Account.Length < 8)
                 {
-                    addMemberError += "【 🚫帳號長度應介於8～20個數字之間 】\n";
+                    addMemberErrorStr += "【 🚫帳號長度應介於8～20個數字之間 】\n";
                 }
             }
-            else
-            {
-                addMemberError += "【 🚫帳號未填 】\n";
-            };
 
-            if (value.Pwd != "")
+            //密碼資料驗證
+            if (string.IsNullOrEmpty(value.Pwd))
+            {
+                addMemberErrorStr += "[密碼不可為空]\n";
+            }
+            else
             {
                 if (!InTool.IsENAndNumber(value.Pwd))
                 {
-                    addMemberError += "【 🚫密碼只能為英數 】\n";
+                    addMemberErrorStr += "【 🚫密碼只能為英數 】\n";
                 }
                 if (value.Pwd.Length > 16 || value.Pwd.Length < 8)
                 {
-                    addMemberError += "【 🚫密碼長度應介於8～16個數字之間 】\n";
+                    addMemberErrorStr += "【 🚫密碼長度應介於8～16個數字之間 】\n";
                 }
             }
-            else
-            {
-                addMemberError += "【 🚫密碼未填 】\n";
-            };
 
-            if (value.Phone != "")
+            //手機資料驗證
+            if (string.IsNullOrEmpty(value.Phone))
+            {
+                addMemberErrorStr += "【 🚫手機不可為空 】\n";
+            }
+            else
             {
                 if (!InTool.IsNumber(value.Phone))
                 {
-                    addMemberError += "【 🚫手機只能為數字 】\n";
+                    addMemberErrorStr += "【 🚫手機只能為數字 】\n";
                 }
                 if (value.Phone.Length < 10)
                 {
-                    addMemberError += "【 🚫手機格式錯誤 】\n";
+                    addMemberErrorStr += "【 🚫手機格式錯誤 】\n";
                 }
             }
-            else
-            {
-                addMemberError += "【 🚫手機未填 】\n";
-            };
 
-            if (value.Mail != "")
+            //信箱資料驗證
+            if (string.IsNullOrEmpty(value.Mail))
+            {
+                addMemberErrorStr += "【 🚫信箱不可為空 】\n";
+            }
+            else
             {
                 if (!InTool.IsMail(value.Mail))
                 {
-                    addMemberError += "【 🚫信箱格式錯誤 】\n";
+                    addMemberErrorStr += "【 🚫信箱格式錯誤 】\n";
                 }
             }
-            else
-            {
-                addMemberError += "【 🚫信箱未填 】\n";
-            };
 
-            if (addMemberError != "")
+            if (!string.IsNullOrEmpty(addMemberErrorStr))
             {
-                return addMemberError;
+                return addMemberErrorStr;
             }
-            else
+
+            SqlCommand cmd = null;
+            //DataTable dt = new DataTable();
+
+            try
             {
-                SqlCommand cmd = null;
-                //DataTable dt = new DataTable();
+                // 資料庫連線
+                cmd = new SqlCommand();
+                cmd.Connection = new SqlConnection(SQLConnectionString);
 
-                try
+                //帳號重複驗證寫在SP中
+                cmd.CommandText = @"EXEC pro_onlineShop_addMember @f_acc, @f_pwd, @f_phone, @f_mail";
+
+                cmd.Parameters.AddWithValue("@f_acc", value.Account);
+                cmd.Parameters.AddWithValue("@f_pwd", Tool.InTool.PwdToMD5(value.Pwd));
+                cmd.Parameters.AddWithValue("@f_phone", value.Phone);
+                cmd.Parameters.AddWithValue("@f_mail", value.Mail);
+
+                //開啟連線
+
+                cmd.Connection.Open();
+                addMemberErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
+                int SQLReturnCode = int.Parse(addMemberErrorStr);
+
+                switch (SQLReturnCode)
                 {
-                    // 資料庫連線
-                    cmd = new SqlCommand();
-                    cmd.Connection = new SqlConnection(SQLConnectionString);
+                    case (int)addACCountErrorCode.duplicateAccount:
+                        return "此帳號已存在";
 
-                    //帳號重複驗證寫在SP中
-                    cmd.CommandText = @"EXEC pro_onlineShop_addMember @f_acc, @f_pwd, @f_phone, @f_mail";
-
-                    cmd.Parameters.AddWithValue("@f_acc", value.Account);
-                    cmd.Parameters.AddWithValue("@f_pwd", Tool.InTool.PwdToMD5(value.Pwd));
-                    cmd.Parameters.AddWithValue("@f_phone", value.Phone);
-                    cmd.Parameters.AddWithValue("@f_mail", value.Mail);
-
-                    //開啟連線
-                    cmd.Connection.Open();
-                    cmd.ExecuteNonQuery(); //執行Transact-SQL
+                    case (int)addACCountErrorCode.AddOK:
+                        return "帳號新增成功";
+                    default:
+                        return "失敗";
+                }
+            }
+            finally
+            {
+                if (cmd != null)
+                {
+                    cmd.Parameters.Clear();
                     cmd.Connection.Close();
                 }
-                finally
-                {
-                    if (cmd != null)
-                    {
-                        cmd.Parameters.Clear();
-                        cmd.Connection.Close();
-                    }
-                }
-                return "新增成功";
             }
         }
-
-        #region 舊寫法MD5
-        //using (var md5 = MD5.Create())
-        //{
-        //    var result = md5.ComputeHash(Encoding.ASCII.GetBytes(value.Pwd));//MD5 加密傳密碼進去
-
-        //    var strResult = BitConverter.ToString(result);
-
-        //    var user = (from a in _OnlineShopContext.TMember
-        //                where a.FAcc == value.Account
-        //                && a.FPwd == strResult.Replace("-", "")
-        //                select a).SingleOrDefault();
-
-        //    if (user == null)
-        //    {
-        //        return "帳號密碼錯誤";
-        //    }
-        //    else
-        //    {
-        //        //這邊等等寫驗證
-        //        var claims = new List<Claim>
-        //    {
-        //        new Claim(ClaimTypes.Name, user.FAcc),
-        //    };
-        //        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-        //        HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
-        //        return "OK";
-        //    }
-        //}
-        #endregion
-
-        ////Mail判斷(測試)
-        //public static bool IsMaill(string value)
-        //{
-        //    try
-        //    {
-        //        var addr = new System.Net.Mail.MailAddress(value);
-        //        return addr.Address.ToUpper() == value.ToUpper();
-        //    }
-        //    catch
-        //    {
-        //        return false;
-        //    }
-        //}
-
-        // PUT api/<MemberController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<MemberController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }   
     }
 }

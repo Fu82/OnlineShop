@@ -5,18 +5,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace OnlineShop.Pages
+namespace OnlineShop.Pages.Member
 {
-    public class LoginModel : PageModel
+    public class MemberMenuModel : PageModel
     {
-        public string Message { get; set; }
         public void OnGet()
         {
-        }
-
-        public IActionResult OnPostReadMsg()
-        {
-            return Content(":AjaxPost");
         }
     }
 }

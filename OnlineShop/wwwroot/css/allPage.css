@@ -29,3 +29,11 @@
 .formGroup {
     margin-bottom: 1rem;
 }
+
+.wordRed {
+    color: rgb(236, 10, 143) !important;
+}
+
+.wordRight {
+    flex: auto;
+}
