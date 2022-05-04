@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -14,6 +15,30 @@ namespace OnlineShop.Tool
             var strResult = BitConverter.ToString(result);
             var md5pwd = strResult.Replace("-", "");
             return md5pwd;
+        }
+
+        //DataTable轉JSON
+        public static string DataTableJson(DataTable dt)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("[");
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                sb.Append("{");
+                for (int j = 0; j < dt.Columns.Count; j++)
+                {
+                    sb.Append("\"");
+                    sb.Append(dt.Columns[j].ColumnName);
+                    sb.Append("\":\"");
+                    sb.Append(dt.Rows[i][j].ToString());
+                    sb.Append("\",");
+                }
+                sb.Remove(sb.Length - 1, 1);
+                sb.Append("},");
+            }
+            sb.Remove(sb.Length - 1, 1);
+            sb.Append("]");
+            return sb.ToString();
         }
 
         //判斷字串是否只有英數

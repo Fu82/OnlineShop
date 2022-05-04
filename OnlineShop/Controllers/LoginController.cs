@@ -102,7 +102,7 @@ namespace OnlineShop.Controllers
 
                     if (cmd.ExecuteScalar() == null)
                     {
-                        return "LoginFail"; //登入失敗
+                        return "登入失敗";
                     }
                     else
                     {
@@ -118,20 +118,20 @@ namespace OnlineShop.Controllers
                         var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                         HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
+                        //判斷是否重複登入
                         if (User.Identity.IsAuthenticated)
                         {
-                            return "以重複登入";
+                            return "請勿重複登入";
                         }
                         else
                         {
-                            return "LoginOK"; //登入成功
+                            return "登入成功";
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    ex.ToString();
-                    return "LoginErr";
+                    return ex.Message;
                 }
                 finally
                 {

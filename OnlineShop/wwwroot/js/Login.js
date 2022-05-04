@@ -27,7 +27,7 @@
                     "Pwd": $("#passWord").val()
                 }),
                 success: function (result) {
-                    if (result == "LoginOK") {
+                    if (result == "登入成功") {
                         location.href = "/LoginData";
                     }
                     else {

@@ -1,5 +1,5 @@
 ﻿$(document).ready(function (data) {
-    $("#btnPost").click(function () {
+    $("#btnAddMember").click(function () {
         if ($("#txtAccount").val() == "" && $("#passWord").val() == "" && $("#txtPhone").val() == "" && $("#txtMail").val() == "") {
             alert("必填");
         }
@@ -30,10 +30,12 @@
                 }),
                 success: function (result) {
                     alert(result);
-                    if (result == "帳號新增成功") {
-                        location.href = "/Login/Login"
+                    if (result == "帳號新增成功")
+                    {
+                        location.href = "/MemberMenu"
                     }
-                    else {
+                    else
+                    {
                         alert(result)
                     }
                 },

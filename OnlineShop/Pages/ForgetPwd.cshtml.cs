@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace OnlineShop.Pages
 {
+    [AllowAnonymous]
     public class ForgetPwdModel : PageModel
     {
         public void OnGet()
