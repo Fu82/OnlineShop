@@ -5,19 +5,40 @@
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 
+@*<h5>NO : @Model.Session01</h5>
+<h5>真實姓名 : @Model.accName</h5>
+<h5>通訊地址 : @Model.accAddress</h5>
+<h5>購物金 : @Model.accGold</h5>*@
 
 <div class="panel panel-primary">
-    <div class="panel-heading">
-    </div>   <!--en dof panel-heading -->
     <div class="panel-body">
         <table class="table table-bordered" id="Table">
-            <tr>
-                <th>姓名</th>
-                <th>地址</th>
-                <th>購物金</th>
-            </tr>   <!--end of table-row -->
-        </table>   <!--end of table -->
-    </div> <!--end of Panel-body -->
-</div> <!--end of Panel -->
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>姓名</th>
+                    <th>地址</th>
+                    <th>購物金</th>
+                </tr>
+            </thead>
+            <tbody id="TableBody">
+                <tr>
+                    <td>@Model.Session01</td>
+                    <td>@Model.accName</td>
+                    <td>@Model.accAddress</td>
+                    <td>@Model.accGold</td>
+                    <td align='center'> <input type='button' class='EditAccBtn' name='EditAccBtn' value='編輯帳號' /></td>
+                </tr>
+            </tbody>
+            <tbody id="TableBody">
+            </tbody>
+        </table>
+    </div>
+</div>
 
-<script src="~/js/MemberMenu.js"></script>  
+<div id="EditBox" style="border: solid 2px; padding: 5px; display: none; position:relative; z-index:99; ">
+    <form id="Editform" method="post" action="">
+    </form>
+</div>
+
+<script src="~/js/MemberMenu.js"></script>

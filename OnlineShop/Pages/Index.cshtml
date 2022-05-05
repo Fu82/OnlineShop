@@ -1,6 +1,7 @@
 ﻿@page
 @model OnlineShop.Pages.IndexModel
 @{
+    ViewData["Title"] = "Login";
 }
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -14,12 +15,12 @@ else
         <div class="panel panelPrimary">
             <div class="panelBody">
                 <div class="formGroup">
-                    <label>帳號</label>
-                    <input id="txtAccount" type="text" class="formControl">
+                    <label>帳號：</label>
+                    <input id="txtAccount" type="text" class="formControl" maxlength="20">
                 </div>
                 <div class="formGroup">
-                    <label>密碼</label>
-                    <input id="passWord" type="password" class="formControl">
+                    <label>密碼：</label>
+                    <input id="passWord" type="password" class="formControl" maxlength="16">
                 </div>
             </div>
             <div class="panelFooter">
@@ -30,4 +31,4 @@ else
     </form>
 }
 
-<script src="~/js/Login.js"></script>
+<script src="./js/Login.js"></script>

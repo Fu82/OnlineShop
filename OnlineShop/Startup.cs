@@ -47,6 +47,12 @@ namespace OnlineShop
                 options.Filters.Add(new AuthorizeFilter());
             });
 
+            //sessionÔO¶¨
+            services.AddSession(o =>
+            {
+                o.IdleTimeout = TimeSpan.FromSeconds(18000000);
+            });
+
 
             services.AddMvc().ConfigureApiBehaviorOptions(options =>
             {
@@ -78,10 +84,14 @@ namespace OnlineShop
 
             app.UseRouting();
 
+
+
             //Cookieòž×C
             app.UseCookiePolicy();
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseSession();
 
             app.UseEndpoints(endpoints =>
             {

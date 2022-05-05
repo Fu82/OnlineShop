@@ -65,21 +65,12 @@ namespace OnlineShop.Controllers
             //</summary >
             duplicateAccount = 101
         }
-        private enum PutACCountErrorCode //更新帳號
+        private enum PutAccErrorCode //更新會員帳號
         {
             //<summary >
-            //帳號刪除成功
+            //會員帳號更新成功
             //</summary >
-            PutOK = 0,
-            //<summary >
-            //此帳號不可更改
-            //</summary >
-            DontPut = 100,
-            //<summary >
-            //尚未建立權限
-            //</summary >
-            LvIsNull = 101
-
+            PutOK = 0
         }
         #endregion
 
@@ -210,7 +201,8 @@ namespace OnlineShop.Controllers
             }
         }
 
-        ////更新帳號
+        //更新帳號
+        #region
         //[HttpPut("PutAcc")]
         //public string PutAcc([FromQuery] int id, [FromBody] MemberSelectDto value)
         //{
@@ -269,10 +261,9 @@ namespace OnlineShop.Controllers
         //        }
         //    }
         //}
+        #endregion
 
         //取得會員資料
-
-
         [HttpGet("GetMember")]
         //public IEnumerable<AccountSelectDto> Get()
         public string GetMember([FromQuery] int id )
@@ -299,6 +290,64 @@ namespace OnlineShop.Controllers
             var result = Tool.InTool.DataTableJson(dt);
 
             return result;
+        }
+
+        //編輯資料
+        [HttpPut("PutMember")]
+        public string PutAcc([FromQuery] int id, [FromBody] MemberSelectDto value)
+        {
+            string putMemberErrorStr = "";//記錄錯誤訊息
+
+            //查詢資料庫狀態是否正常
+            if (ModelState.IsValid == false)
+            {
+                return "參數異常";
+            }
+
+            if (!string.IsNullOrEmpty(putMemberErrorStr))
+            {
+                return putMemberErrorStr;
+            }
+
+            SqlCommand cmd = null;
+            //DataTable dt = new DataTable();
+            try
+            {
+                // 資料庫連線
+                cmd = new SqlCommand();
+                cmd.Connection = new SqlConnection(SQLConnectionString);
+
+                cmd.CommandText = @"EXEC pro_onlineShop_putMemberList @f_id, @f_name, @f_address";
+
+                cmd.Parameters.AddWithValue("@f_id", id);
+                cmd.Parameters.AddWithValue("@f_name", value.Name);
+                cmd.Parameters.AddWithValue("@f_address", value.Address);
+
+                //開啟連線
+                cmd.Connection.Open();
+                putMemberErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
+                int SQLReturnCode = int.Parse(putMemberErrorStr);
+
+                switch (SQLReturnCode)
+                {
+                    case (int)PutAccErrorCode.PutOK:
+                        return "帳號更新成功";
+                    default:
+                        return "失敗";
+                }
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+            finally
+            {
+                if (cmd != null)
+                {
+                    cmd.Parameters.Clear();
+                    cmd.Connection.Close();
+                }
+            }
         }
     }
 }

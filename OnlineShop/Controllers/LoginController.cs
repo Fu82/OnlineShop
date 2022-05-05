@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
@@ -112,16 +113,19 @@ namespace OnlineShop.Controllers
                         //添加角色權限
                         var claims = new List<Claim>
                         {
-                           new Claim(ClaimTypes.Name, value.Account)
+                           new Claim(ClaimTypes.Name, value.Account), //存使用者名稱,
                         };
 
-                        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                       
+                        HttpContext.Session.SetString("SessionID", dt.Rows[0]["f_id"].ToString());
+
+                       var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                         HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
                         //判斷是否重複登入
                         if (User.Identity.IsAuthenticated)
                         {
-                            return "請勿重複登入";
+                            return "請先登出再進行登入";
                         }
                         else
                         {
