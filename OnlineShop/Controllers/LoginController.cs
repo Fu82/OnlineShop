@@ -119,7 +119,7 @@ namespace OnlineShop.Controllers
                        
                         HttpContext.Session.SetString("SessionID", dt.Rows[0]["f_id"].ToString());
 
-                       var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                         HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
                         //判斷是否重複登入

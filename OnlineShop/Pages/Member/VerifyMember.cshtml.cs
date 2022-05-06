@@ -6,10 +6,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace OnlineShop.Pages
+namespace OnlineShop.Pages.Member
 {
     [AllowAnonymous]
-    public class ForgetPwdModel : PageModel
+    public class VerifyMemberModel : PageModel
     {
         public void OnGet()
         {
