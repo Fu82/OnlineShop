@@ -7,10 +7,10 @@
         success: function (data) {
             var rows = rows + "<tr>" +
                 "<td name='fid'>" + data[0].f_id + "</td>" +
-                "<td name='fname'>" + data[0].f_name + "</td>" +
+                "<td name='fname' style='width: 20%;'>" + data[0].f_name + "</td>" +
                 "<td name='faddress'>" + data[0].f_address + "</td>" +
-                "<td name='fshopGold'>" + data[0].f_shopGold + "</td>" +
-                "<td align='center'> <input type='button' class='EditAccBtn'  name='EditAccBtn'  value='編輯資料'/ ></td>" +
+                "<td name='fshopGold' style='width: 20%;'>" + data[0].f_shopGold + "</td>" +
+                "<td align='center' style='width: 15%;'> <input type='button' class='EditAccBtn'  name='EditAccBtn'  value='編輯資料'/ ></td>" +
                 "</tr>";
             $('#TableBody').append(rows);
         },
@@ -34,8 +34,8 @@
                 "<h5>編輯資料</h5>" +
                 "<div><label> 姓名：</label><label id='Editfname'>" + col2 + "</label></div>" +
                 "<div><label> 地址：</label><label id='Editfaddress'>" + col3 + "</label></div>" +
-                "<div><label> 更新姓名：</label><input id='txtName' maxlength='4' /></div>" +
-                "<div><label> 更新地址：</label><input id='txtAddress' /></div>" +
+                "<div><label> 更新姓名：</label><input id='txtName' style='width: 10%;' maxlength='4' /></div>" +
+                "<div><label> 更新地址：</label><input id='txtAddress' style='width: 40%;' /></div>" +
                 "<div id='Editbutton'><input name='EditAcc' onclick ='EditAcc_Click(" + col1 + ")' type='Button' value='確認編輯' />" +
                 "<input name='EditCancel' id = 'EditCancel' type = 'Button'  onclick = 'EditCancel_Click()' value = '取消編輯' /></div > "
             $('#Editform').append(EditData);

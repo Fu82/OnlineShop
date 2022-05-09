@@ -3,14 +3,27 @@
 @{
 }
 
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<h5>帳號驗證</h5>
 <div class="panel panelPrimary">
     <div class="panelBody">
         <div class="formGroup">
             <label>帳號</label>
-            <input id="Account" type="text" class="formControl">
+            <input id="txtAccount" type="text" class="formControl">
         </div>
+        <div class="formGroup">
+            <label>密碼</label>
+            <input id="passWord" type="password" class="formControl">
+        </div>
+        @*<div class="formGroup">
+            <label>驗證碼</label>
+            <input id="txtCode" type="text" class="formControl">
+        </div>*@
     </div>
     <div class="panelFooter">
-        <button type="button" class="btn btnPrimary">寄送驗證碼</button>
+        <button id="btnCheckCode" type="button" class="btn btnPrimary">驗證</button>
     </div>
 </div>
+
+<script src="~/js/VerifyMember.js"></script>

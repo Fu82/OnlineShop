@@ -72,6 +72,13 @@ namespace OnlineShop.Controllers
             //</summary >
             PutOK = 0
         }
+        private enum AuthAccErrorCode //驗證會員帳號
+        {
+            //<summary >
+            //會員帳號更新成功
+            //</summary >
+            AuthOK = 0
+        }
         #endregion
 
         //增加帳號
@@ -175,6 +182,15 @@ namespace OnlineShop.Controllers
                 cmd.Connection.Open();
                 addMemberErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
                 int SQLReturnCode = int.Parse(addMemberErrorStr);
+
+                Random a = new Random();
+                int x;
+                x = a.Next(1, 11);
+
+                Dictionary<string, int> dic = new Dictionary<string, int>();
+                dic.Add("key", x);
+
+                var aa = dic["key"].ToString();
 
                 switch (SQLReturnCode)
                 {
@@ -290,6 +306,102 @@ namespace OnlineShop.Controllers
             var result = Tool.InTool.DataTableJson(dt);
 
             return result;
+        }
+
+        //驗證帳號
+        [HttpPut("VerifyMember")]
+        //public IEnumerable<AccountSelectDto> Get()
+        public string VerifyMember([FromBody] MemberSelectDto value)
+        {
+            //查詢伺服器狀態是否正常
+            if (ModelState.IsValid == false)
+            {
+                /*****/
+                return "輸入參數有誤";
+            }
+
+            string AuthMemberErrorStr = "";//記錄錯誤訊息
+
+            //帳號資料驗證
+            if (value.Account == "" || (string.IsNullOrEmpty(value.Account)))
+            {
+                AuthMemberErrorStr += "【 帳號不可為空 】\n";
+            }
+            else
+            {
+                if (!InTool.IsENAndNumber(value.Account))
+                {
+                    AuthMemberErrorStr += "【 🚫帳號只能為英數 】\n";
+                }
+                if (value.Account.Length > 20 || value.Account.Length < 3)
+                {
+                    AuthMemberErrorStr += "【 🚫帳號長度應介於8～20個數字之間 】\n";
+                }
+            };
+
+            //密碼資料驗證
+            if (value.Pwd == "" || (string.IsNullOrEmpty(value.Pwd)))
+            {
+                AuthMemberErrorStr += "【 密碼不可為空 】\n";
+            }
+            else
+            {
+                if (!InTool.IsENAndNumber(value.Pwd))
+                {
+                    AuthMemberErrorStr += "【 🚫密碼只能為英數 】\n";
+                }
+                if (value.Pwd.Length > 16 || value.Pwd.Length < 8)
+                {
+                    AuthMemberErrorStr += "【 🚫密碼長度應介於8～16個數字之間 】\n";
+                }
+            }
+
+            //錯誤訊息不為空
+            if (AuthMemberErrorStr != "")
+            {
+                return AuthMemberErrorStr;
+            }
+            else
+            {
+                SqlCommand cmd = null;
+                //DataTable dt = new DataTable();
+                try
+                {
+                    // 資料庫連線
+                    cmd = new SqlCommand();
+                    cmd.Connection = new SqlConnection(SQLConnectionString);
+
+                    cmd.CommandText = @"EXEC pro_onlineShop_putMemberAuth @f_acc, @f_pwd, @f_suspension";
+
+                    //開啟連線
+                    cmd.Connection.Open();
+                    AuthMemberErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
+                    int SQLReturnCode = int.Parse(AuthMemberErrorStr);
+
+                    cmd.Parameters.AddWithValue("@f_acc", value.Account);
+                    cmd.Parameters.AddWithValue("@f_pwd", Tool.InTool.PwdToMD5(value.Pwd));
+
+                    switch (SQLReturnCode)
+                    {
+                        case (int)AuthAccErrorCode.AuthOK:
+                            return "驗證成功";
+                        default:
+                            return "失敗";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return ex.Message;
+                }
+                finally
+                {
+                    if (cmd != null)
+                    {
+                        cmd.Parameters.Clear();
+                        cmd.Connection.Close();
+                    }
+                }
+            }
         }
 
         //編輯資料

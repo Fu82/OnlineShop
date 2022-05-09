@@ -32,7 +32,7 @@
                     alert(result);
                     if (result == "帳號新增成功")
                     {
-                        location.href = "/Index"
+                        location.href = "/VerifyMember"
                     }
                     else
                     {
