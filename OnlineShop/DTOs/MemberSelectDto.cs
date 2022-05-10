@@ -17,6 +17,8 @@ namespace OnlineShop.DTOs
         public byte Level { get; set; }
         public byte Suspension { get; set; }
 
+        public string Code { get; set; }
+
         public DateTime CreateDate { get; set; }
     }
 }

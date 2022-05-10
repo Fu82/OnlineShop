@@ -7,6 +7,7 @@ using OnlineShop.DTOs;
 using OnlineShop.Models;
 using OnlineShop.Tool;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -21,6 +22,32 @@ namespace OnlineShop.Controllers
 
         //SQL連線字串 SQLConnectionString
         private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
+
+        /// <summary>
+        /// 產生4位亂數字串
+        /// </summary>
+        public static string VerifyKey()
+        {
+            string key = "";
+            Random r = new Random();
+
+            int num1 = r.Next(0, 9);
+            int num2 = r.Next(0, 9);
+            int num3 = r.Next(0, 9);
+            int num4 = r.Next(0, 9);
+
+            int[] numbers = new int[4] { num1, num2, num3, num4 };
+            for (int i = 0; i < numbers.Length; i++)
+            {
+                key += numbers[i].ToString();
+            }
+            return key;
+        }
+
+        /// <summary>
+        /// 存取4位數至記憶體
+        /// </summary>
+        public static ConcurrentDictionary<string, string> dic = new ConcurrentDictionary<string, string>();
 
         //已註解
         #region GetAccount EF舊寫法用所需
@@ -63,7 +90,7 @@ namespace OnlineShop.Controllers
             //<summary >
             //帳號重複
             //</summary >
-            duplicateAccount = 101
+            duplicateAccount = 100
         }
         private enum PutAccErrorCode //更新會員帳號
         {
@@ -79,11 +106,17 @@ namespace OnlineShop.Controllers
             //</summary >
             AuthOK = 0
         }
+        private enum GetForgetMemberErrorCode //忘記密碼會員驗證
+        {
+            //<summary >
+            //會員帳號正確
+            //</summary >
+            GetMemberOK = 0
+        }
         #endregion
 
-        //增加帳號
-        [HttpPost("AddAcc")]
-        
+       //增加帳號
+       [HttpPost("AddAcc")]
         public string AddAcc([FromBody] MemberSelectDto value)
         {
             //後端驗證
@@ -161,7 +194,6 @@ namespace OnlineShop.Controllers
             }
 
             SqlCommand cmd = null;
-            //DataTable dt = new DataTable();
 
             try
             {
@@ -183,14 +215,7 @@ namespace OnlineShop.Controllers
                 addMemberErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
                 int SQLReturnCode = int.Parse(addMemberErrorStr);
 
-                Random a = new Random();
-                int x;
-                x = a.Next(1, 11);
-
-                Dictionary<string, int> dic = new Dictionary<string, int>();
-                dic.Add("key", x);
-
-                var aa = dic["key"].ToString();
+                dic.GetOrAdd("code", VerifyKey());
 
                 switch (SQLReturnCode)
                 {
@@ -198,7 +223,8 @@ namespace OnlineShop.Controllers
                         return "此帳號已存在";
 
                     case (int)addACCountErrorCode.AddOK:
-                        return "帳號新增成功";
+                        return "帳號新增成功  " + "驗證碼： " + dic["code"];
+
                     default:
                         return "失敗";
                 }
@@ -216,68 +242,6 @@ namespace OnlineShop.Controllers
                 }
             }
         }
-
-        //更新帳號
-        #region
-        //[HttpPut("PutAcc")]
-        //public string PutAcc([FromQuery] int id, [FromBody] MemberSelectDto value)
-        //{
-        //    string addMemberErrorStr = "";//記錄錯誤訊息
-
-        //    //查詢資料庫狀態是否正常
-        //    if (ModelState.IsValid == false)
-        //    {
-        //        return "參數異常";
-        //    }
-
-        //    if (!string.IsNullOrEmpty(addMemberErrorStr))
-        //    {
-        //        return addMemberErrorStr;
-        //    }
-
-
-        //    SqlCommand cmd = null;
-        //    //DataTable dt = new DataTable();
-        //    try
-        //    {
-        //        // 資料庫連線
-        //        cmd = new SqlCommand();
-        //        cmd.Connection = new SqlConnection(SQLConnectionString);
-
-        //        cmd.CommandText = @"EXEC pro_onlineShopBack_putAccount @Id, @Level";
-
-        //        cmd.Parameters.AddWithValue("@Id", id);
-        //        cmd.Parameters.AddWithValue("@Level", value.Level);
-
-        //        //開啟連線
-        //        cmd.Connection.Open();
-        //        addMemberErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-        //        int SQLReturnCode = int.Parse(addMemberErrorStr);
-
-        //        switch (SQLReturnCode)
-        //        {
-        //            case (int)PutACCountErrorCode.DontPut:
-        //                return "此帳號不可做更改";
-        //            case (int)PutACCountErrorCode.PutOK:
-        //                return "帳號更新成功";
-        //            default:
-        //                return "失敗";
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return ex.Message;
-        //    }
-        //    finally
-        //    {
-        //        if (cmd != null)
-        //        {
-        //            cmd.Parameters.Clear();
-        //            cmd.Connection.Close();
-        //        }
-        //    }
-        //}
-        #endregion
 
         //取得會員資料
         [HttpGet("GetMember")]
@@ -337,7 +301,7 @@ namespace OnlineShop.Controllers
                 {
                     AuthMemberErrorStr += "【 🚫帳號長度應介於8～20個數字之間 】\n";
                 }
-            };
+            }
 
             //密碼資料驗證
             if (value.Pwd == "" || (string.IsNullOrEmpty(value.Pwd)))
@@ -356,6 +320,24 @@ namespace OnlineShop.Controllers
                 }
             }
 
+            //驗證碼資料驗證
+            if (value.Code == "")
+            {
+                AuthMemberErrorStr += "【 驗證碼不可為空 】\n";
+            }
+            else
+            {
+                if (!InTool.IsNumber(value.Code))
+                {
+                    AuthMemberErrorStr += "【 🚫驗證碼只能為數字 】\n";
+                }
+            }
+
+            if (value.Code != dic["code"])
+            {
+                AuthMemberErrorStr += "【 驗證碼錯誤 】\n";
+            }
+
             //錯誤訊息不為空
             if (AuthMemberErrorStr != "")
             {
@@ -371,20 +353,22 @@ namespace OnlineShop.Controllers
                     cmd = new SqlCommand();
                     cmd.Connection = new SqlConnection(SQLConnectionString);
 
-                    cmd.CommandText = @"EXEC pro_onlineShop_putMemberAuth @f_acc, @f_pwd, @f_suspension";
+                    cmd.CommandText = @"EXEC pro_onlineShop_putMemberAuth @f_acc, @f_pwd";
+
+                    cmd.Parameters.AddWithValue("@f_acc", value.Account);
+                    cmd.Parameters.AddWithValue("@f_pwd", Tool.InTool.PwdToMD5(value.Pwd));
 
                     //開啟連線
                     cmd.Connection.Open();
                     AuthMemberErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
                     int SQLReturnCode = int.Parse(AuthMemberErrorStr);
 
-                    cmd.Parameters.AddWithValue("@f_acc", value.Account);
-                    cmd.Parameters.AddWithValue("@f_pwd", Tool.InTool.PwdToMD5(value.Pwd));
 
                     switch (SQLReturnCode)
                     {
                         case (int)AuthAccErrorCode.AuthOK:
-                            return "驗證成功";
+                            return "驗證成功"
+                                ;
                         default:
                             return "失敗";
                     }
@@ -458,6 +442,85 @@ namespace OnlineShop.Controllers
                 {
                     cmd.Parameters.Clear();
                     cmd.Connection.Close();
+                }
+            }
+        }
+
+        //忘記密碼
+        [HttpGet("GetForgetPwd")]
+        public string GetMemberPwd([FromBody] MemberSelectDto value)
+        {
+            string getMemberPwdErrorStr = "";//記錄錯誤訊息
+
+            //查詢資料庫狀態是否正常
+            if (ModelState.IsValid == false)
+            {
+                return "參數異常";
+            }
+
+            //帳號資料驗證
+            if (value.Account == "" || (string.IsNullOrEmpty(value.Account)))
+            {
+                getMemberPwdErrorStr += "【 帳號不可為空 】\n";
+            }
+            else
+            {
+                if (!InTool.IsENAndNumber(value.Account))
+                {
+                    getMemberPwdErrorStr += "【 🚫帳號只能為英數 】\n";
+                }
+                if (value.Account.Length > 20 || value.Account.Length < 3)
+                {
+                    getMemberPwdErrorStr += "【 🚫帳號長度應介於8～20個數字之間 】\n";
+                }
+            };
+
+            //錯誤訊息不為空
+            if (getMemberPwdErrorStr != "")
+            {
+                return getMemberPwdErrorStr;
+            }
+            else
+            {
+                SqlCommand cmd = null;
+                //DataTable dt = new DataTable();
+                try
+                {
+                    // 資料庫連線
+                    cmd = new SqlCommand();
+                    cmd.Connection = new SqlConnection(SQLConnectionString);
+
+                    cmd.CommandText = @"EXEC pro_onlineShop_getForgetMember @f_acc";
+
+                    cmd.Parameters.AddWithValue("@f_acc", value.Account);
+
+                    dic.GetOrAdd("code", VerifyKey());
+
+                    //開啟連線
+                    cmd.Connection.Open();
+                    getMemberPwdErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
+                    int SQLReturnCode = int.Parse(getMemberPwdErrorStr);
+
+                    switch (SQLReturnCode)
+                    {
+                        case (int)GetForgetMemberErrorCode.GetMemberOK:
+                            return "帳號正確  " + "驗證碼：" + dic["code"];
+
+                        default:
+                            return "失敗";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return ex.Message;
+                }
+                finally
+                {
+                    if (cmd != null)
+                    {
+                        cmd.Parameters.Clear();
+                        cmd.Connection.Close();
+                    }
                 }
             }
         }

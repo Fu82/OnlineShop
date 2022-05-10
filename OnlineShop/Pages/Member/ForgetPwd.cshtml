@@ -2,3 +2,20 @@
 @model OnlineShop.Pages.Member.ForgetPwdModel
 @{
 }
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<h5>忘記密碼</h5>
+<div class="panel panelPrimary">
+    <div class="panelBody">
+        <div class="formGroup">
+            <label>帳號</label>
+            <input id="txtAccount" type="text" class="formControl">
+        </div>
+    </div>
+    <div class="panelFooter">
+        <button id="btnSendCode" type="button" class="btn btnPrimary">寄送驗證碼</button>
+    </div>
+</div>
+
+<script src="~/js/ForgetPwd.js"></script>

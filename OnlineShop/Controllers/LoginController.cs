@@ -31,34 +31,6 @@ namespace OnlineShop.Controllers
         //SQL連線字串 SQLConnectionString
         private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
 
-        /// <summary>產生亂數字串</summary>
-        /// <param name="Number">字元數</param>
-        /// <returns></returns>
-        //public string CreateRandomCode(int Number)
-        //{
-        //    string allChar = "0,1,2,3,4,5,6,7,8,9,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z";
-        //    string[] allCharArray = allChar.Split(',');
-        //    string randomCode = "";
-        //    int temp = -1;
-
-        //    Random rand = new Random();
-        //    for (int i = 0; i < Number; i++)
-        //    {
-        //        if (temp != -1)
-        //        {
-        //            rand = new Random(i * temp * ((int)DateTime.Now.Ticks));
-        //        }
-        //        int t = rand.Next(36);
-        //        if (temp != -1 && temp == t)
-        //        {
-        //            return CreateRandomCode(Number);
-        //        }
-        //        temp = t;
-        //        randomCode += allCharArray[t];
-        //    }
-        //    return randomCode;
-        //}
-
         [HttpPost]
         public string Login(MemberSelectDto value)
         {
@@ -145,29 +117,10 @@ namespace OnlineShop.Controllers
                            new Claim(ClaimTypes.Name, value.Account), //存使用者名稱,
                         };
 
-
                         HttpContext.Session.SetString("SessionID", dt.Rows[0]["f_id"].ToString());
 
                         var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                         HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
-
-                        //Random a = new Random();
-                        //int x;
-                        //x = a.Next(1, 11);
-
-                        //Dictionary<string, int> dic = new Dictionary<string, int>();
-                        //dic.Add("key", x);
-
-                        //string aa = dic["key"].ToString();
-
-                        Random a = new Random();
-                        int x;
-                        x = a.Next(1, 11);
-
-                        ConcurrentDictionary<string, int> dic = new ConcurrentDictionary<string, int>();
-                        dic.TryAdd("key", x);
-
-                        string aa = dic["key"].ToString();
 
                         //判斷是否重複登入
                         if (User.Identity.IsAuthenticated)
@@ -176,7 +129,7 @@ namespace OnlineShop.Controllers
                         }
                         else
                         {
-                            return "登入成功" + "驗證碼:" + aa;
+                            return "登入成功";
                         }
                     }
                 }

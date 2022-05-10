@@ -4,10 +4,6 @@
             alert("必填");
         }
 
-        else if ($("#txtAccount").val() == "") {
-            alert("帳號必填");
-        }
-
         else if ($("#passWord").val() == "") {
             alert("密碼必填");
         }
@@ -25,7 +21,7 @@
                 data: JSON.stringify({
                     "Account": $("#txtAccount").val(),
                     "Pwd": $("#passWord").val(),
-                    "Code":  $("#txtCode").val()
+                    "Code": $("#txtCode").val()
                 }),
                 success: function (result) {
                     if (result == "驗證成功") {
