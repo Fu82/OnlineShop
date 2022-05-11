@@ -29,6 +29,7 @@
                 }),
                 success: function (result) {
                     if (result == "驗證成功") {
+                        alert(result);
                         location.href = "/Index";
                     }
                     else {

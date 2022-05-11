@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using MyNet5ApiAdoTest.Services;
-using OnlineShop.DTOs;
 using OnlineShop.Models;
 using OnlineShop.Tool;
 using System;
@@ -106,17 +105,27 @@ namespace OnlineShop.Controllers
             //</summary >
             AuthOK = 0
         }
-        private enum GetForgetMemberErrorCode //忘記密碼會員驗證
+        private enum putMemberPwdErrorCode //忘記密碼會員驗證
         {
             //<summary >
-            //會員帳號正確
+            //密碼變更成功
             //</summary >
-            GetMemberOK = 0
+            PutOK = 0,
+
+            //<summary >
+            //新密碼與確認密碼不相同
+            //</summary >
+            confirmError = 100,
+
+            //<summary >
+            //帳號不存在
+            //</summary >
+            AccIsNull = 101
         }
         #endregion
 
-       //增加帳號
-       [HttpPost("AddAcc")]
+        //增加帳號
+        [HttpPost("AddAcc")]
         public string AddAcc([FromBody] MemberSelectDto value)
         {
             //後端驗證
@@ -215,7 +224,7 @@ namespace OnlineShop.Controllers
                 addMemberErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
                 int SQLReturnCode = int.Parse(addMemberErrorStr);
 
-                dic.GetOrAdd("code", VerifyKey());
+                dic.TryAdd(value.Account, VerifyKey());
 
                 switch (SQLReturnCode)
                 {
@@ -223,7 +232,7 @@ namespace OnlineShop.Controllers
                         return "此帳號已存在";
 
                     case (int)addACCountErrorCode.AddOK:
-                        return "帳號新增成功  " + "驗證碼： " + dic["code"];
+                        return "帳號新增成功  " + "驗證碼： " + dic[value.Account];
 
                     default:
                         return "失敗";
@@ -333,7 +342,7 @@ namespace OnlineShop.Controllers
                 }
             }
 
-            if (value.Code != dic["code"])
+            if (value.Code != dic[value.Account])
             {
                 AuthMemberErrorStr += "【 驗證碼錯誤 】\n";
             }
@@ -447,10 +456,10 @@ namespace OnlineShop.Controllers
         }
 
         //忘記密碼
-        [HttpGet("GetForgetPwd")]
-        public string GetMemberPwd([FromBody] MemberSelectDto value)
+        [HttpPost("PostForgetPwd")]
+        public string PostMemberPwd([FromBody] MemberSelectDto value)
         {
-            string getMemberPwdErrorStr = "";//記錄錯誤訊息
+            string postMemberPwdErrorStr = "";//記錄錯誤訊息
 
             //查詢資料庫狀態是否正常
             if (ModelState.IsValid == false)
@@ -461,24 +470,24 @@ namespace OnlineShop.Controllers
             //帳號資料驗證
             if (value.Account == "" || (string.IsNullOrEmpty(value.Account)))
             {
-                getMemberPwdErrorStr += "【 帳號不可為空 】\n";
+                postMemberPwdErrorStr += "【 帳號不可為空 】\n";
             }
             else
             {
                 if (!InTool.IsENAndNumber(value.Account))
                 {
-                    getMemberPwdErrorStr += "【 🚫帳號只能為英數 】\n";
+                    postMemberPwdErrorStr += "【 🚫帳號只能為英數 】\n";
                 }
                 if (value.Account.Length > 20 || value.Account.Length < 3)
                 {
-                    getMemberPwdErrorStr += "【 🚫帳號長度應介於8～20個數字之間 】\n";
+                    postMemberPwdErrorStr += "【 🚫帳號長度應介於8～20個數字之間 】\n";
                 }
             };
 
             //錯誤訊息不為空
-            if (getMemberPwdErrorStr != "")
+            if (postMemberPwdErrorStr != "")
             {
-                return getMemberPwdErrorStr;
+                return postMemberPwdErrorStr;
             }
             else
             {
@@ -494,17 +503,143 @@ namespace OnlineShop.Controllers
 
                     cmd.Parameters.AddWithValue("@f_acc", value.Account);
 
-                    dic.GetOrAdd("code", VerifyKey());
+                    dic.TryAdd(value.Account, VerifyKey());
 
                     //開啟連線
                     cmd.Connection.Open();
-                    getMemberPwdErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-                    int SQLReturnCode = int.Parse(getMemberPwdErrorStr);
+                    postMemberPwdErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
+
+                    if (!string.IsNullOrWhiteSpace(postMemberPwdErrorStr))
+                    {
+                        return "帳號正確  " + "驗證碼：" + dic[value.Account];
+                    }
+                    else
+                    {
+                        return "失敗";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return ex.Message;
+                }
+                finally
+                {
+                    if (cmd != null)
+                    {
+                        cmd.Parameters.Clear();
+                        cmd.Connection.Close();
+                    }
+                }
+            }
+        }
+
+        //驗證新密碼
+        [HttpPut("VerifyForgetPwd")]
+        public string PutMemberPwd([FromBody] PutPwdDto value)
+        {
+            //查詢伺服器狀態是否正常
+            if (ModelState.IsValid == false)
+            {
+                /*****/
+                return "輸入參數有誤";
+            }
+
+            string putMemberPwdErrorStr = "";//記錄錯誤訊息
+
+            //帳號資料驗證
+            if (value.f_acc == "" || (string.IsNullOrEmpty(value.f_acc)))
+            {
+                putMemberPwdErrorStr += "【 帳號不可為空 】\n";
+            }
+            else
+            {
+                if (!InTool.IsENAndNumber(value.f_acc))
+                {
+                    putMemberPwdErrorStr += "【 🚫帳號只能為英數 】\n";
+                }
+                if (value.f_acc.Length > 20 || value.f_acc.Length < 3)
+                {
+                    putMemberPwdErrorStr += "【 🚫帳號長度應介於8～20個數字之間 】\n";
+                }
+            }
+
+            //密碼資料驗證
+            if (string.IsNullOrEmpty(value.newPwd) || string.IsNullOrEmpty(value.cfmNewPwd))//空字串判斷and Null值判斷皆用IsNullOrEmpty
+            {
+                putMemberPwdErrorStr += "【 🚫新密碼或確認密碼不可為空 】\n";
+            }
+            else
+            {
+                if (value.newPwd != value.cfmNewPwd)//空字串判斷and Null值判斷皆用IsNullOrEmpty
+                {
+                    putMemberPwdErrorStr += "【 🚫新密碼與確認新密碼需相同 】\n";
+                }
+
+                if (!InTool.IsENAndNumber(value.newPwd) || !InTool.IsENAndNumber(value.cfmNewPwd))
+                {
+                    putMemberPwdErrorStr += "【 🚫密碼只能為英數 】\n";
+                }
+                if (value.newPwd.Length > 16 || value.newPwd.Length < 8)
+                {
+                    putMemberPwdErrorStr += "【 🚫密碼長度應介於8～16個數字之間 】\n";
+                }
+            }
+
+            //驗證碼資料驗證
+            if (value.Code == "")
+            {
+                putMemberPwdErrorStr += "【 驗證碼不可為空 】\n";
+            }
+            else
+            {
+                if (!InTool.IsNumber(value.Code))
+                {
+                    putMemberPwdErrorStr += "【 🚫驗證碼只能為數字 】\n";
+                }
+            }
+
+            if (value.Code != dic[value.f_acc])
+            {
+                putMemberPwdErrorStr += "【 驗證碼錯誤 】\n";
+            }
+
+            //錯誤訊息不為空
+            if (putMemberPwdErrorStr != "")
+            {
+                return putMemberPwdErrorStr;
+            }
+            else
+            {
+                SqlCommand cmd = null;
+                //DataTable dt = new DataTable();
+                try
+                {
+                    // 資料庫連線
+                    cmd = new SqlCommand();
+                    cmd.Connection = new SqlConnection(SQLConnectionString);
+
+                    cmd.CommandText = @"EXEC pro_onlineShop_putForgetMemberPwd @f_acc, @newPwd, @cfmNewPwd";
+
+                    cmd.Parameters.AddWithValue("@f_acc", value.f_acc);
+                    cmd.Parameters.AddWithValue("@newPwd", Tool.InTool.PwdToMD5(value.newPwd));
+                    cmd.Parameters.AddWithValue("@cfmNewPwd", Tool.InTool.PwdToMD5(value.cfmNewPwd));
+
+                    //開啟連線
+                    cmd.Connection.Open();
+                    putMemberPwdErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
+                    int SQLReturnCode = int.Parse(putMemberPwdErrorStr);
+
 
                     switch (SQLReturnCode)
                     {
-                        case (int)GetForgetMemberErrorCode.GetMemberOK:
-                            return "帳號正確  " + "驗證碼：" + dic["code"];
+                        case (int)putMemberPwdErrorCode.confirmError:
+                            return "新密碼與確認新密碼不相同";
+
+                        case (int)putMemberPwdErrorCode.AccIsNull:
+                            return "此帳號不存在";
+
+                        case (int)putMemberPwdErrorCode.PutOK:
+                            return "密碼修改成功";
 
                         default:
                             return "失敗";

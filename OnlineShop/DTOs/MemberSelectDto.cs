@@ -1,8 +1,6 @@
-﻿using OnlineShop.ValidationAttributes;
-using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System;
 
-namespace OnlineShop.DTOs
+namespace OnlineShop.Controllers
 {
     public class MemberSelectDto
     {

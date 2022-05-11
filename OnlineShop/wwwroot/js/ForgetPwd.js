@@ -6,15 +6,21 @@
 
         else {
             $.ajax({
-                url: "/api/Member/GetForgetPwd",
-                type: "get",
+                url: "/api/Member/PostForgetPwd",
+                type: "post",
                 contentType: "application/json",
                 dataType: "text",
                 data: JSON.stringify({
                     "Account": $("#txtAccount").val()
                 }),
                 success: function (result) {
-                    alert(result);
+                    if (result == "帳號正確") {
+                        alert(result);
+                        location.href = "/Member/VerifyMember";
+                    }
+                    else {
+                        alert(result);
+                    }
                 },
                 error: function (error) {
                     alert(error);

@@ -1,11 +1,19 @@
 ﻿$(document).ready(function (data) {
     $("#btnCheckCode").click(function () {
-        if ($("#txtAccount").val() == "" && $("#passWord").val() == "" && $("#txtCode").val() == "") {
+        if ($("#txtAccount").val() == "" && $("#newPassWord").val() == "" && $("#checkPassWord").val() == "" && $("#txtCode").val() == "") {
             alert("必填");
         }
 
-        else if ($("#passWord").val() == "") {
-            alert("密碼必填");
+        else if ($("#txtAccount").val() == "") {
+            alert("帳號必填");
+        }
+
+        else if ($("#newPassWord").val() == "") {
+            alert("新密碼必填");
+        }
+
+        else if ($("#checkPassWord").val() == "") {
+            alert("確認密碼必填");
         }
 
         else if ($("#txtCode").val() == "") {
@@ -14,17 +22,19 @@
 
         else {
             $.ajax({
-                url: "/api/Member/VerifyMember",
+                url: "/api/Member/VerifyForgetPwd",
                 type: "put",
                 contentType: "application/json",
                 dataType: "text",
                 data: JSON.stringify({
-                    "Account": $("#txtAccount").val(),
-                    "Pwd": $("#passWord").val(),
+                    "f_acc": $("#txtAccount").val(),
+                    "newPwd": $("#newPassWord").val(),
+                    "cfmNewPwd": $("#checkPassWord").val(),
                     "Code": $("#txtCode").val()
                 }),
                 success: function (result) {
-                    if (result == "驗證成功") {
+                    if (result == "密碼修改成功") {
+                        alert(result);
                         location.href = "/Index";
                     }
                     else {
