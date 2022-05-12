@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
@@ -46,7 +47,14 @@ namespace OnlineShop.Controllers
         /// <summary>
         /// 存取4位數至記憶體
         /// </summary>
-        public static ConcurrentDictionary<string, string> dic = new ConcurrentDictionary<string, string>();
+        public static ConcurrentDictionary<string, TimeCode> dic = new ConcurrentDictionary<string, TimeCode>();
+
+        public class TimeCode
+        {
+            public string KeyCode { get; set; } = string.Empty;
+
+            public DateTime ValidTime { get; set; } = DateTime.Now.AddMinutes(30);
+        }
 
         //已註解
         #region GetAccount EF舊寫法用所需
@@ -224,7 +232,13 @@ namespace OnlineShop.Controllers
                 addMemberErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
                 int SQLReturnCode = int.Parse(addMemberErrorStr);
 
-                dic.TryAdd(value.Account, VerifyKey());
+                TimeCode timeCode = new TimeCode();
+                timeCode.KeyCode = VerifyKey();
+                timeCode.ValidTime = DateTime.Now.AddMinutes(30);
+
+                dic.TryAdd(value.Account, timeCode);
+
+                //dic.TryAdd(value.Account, VerifyKey());
 
                 switch (SQLReturnCode)
                 {
@@ -342,10 +356,14 @@ namespace OnlineShop.Controllers
                 }
             }
 
-            if (value.Code != dic[value.Account])
-            {
-                AuthMemberErrorStr += "【 驗證碼錯誤 】\n";
-            }
+            //if (value.Code != dic[value.Account])
+            //{
+            //    AuthMemberErrorStr += "【 驗證碼錯誤 】\n";
+            //}
+            //else
+            //{
+            //    dic.TryRemove(value.Account, out _);
+            //}
 
             //錯誤訊息不為空
             if (AuthMemberErrorStr != "")
@@ -376,8 +394,8 @@ namespace OnlineShop.Controllers
                     switch (SQLReturnCode)
                     {
                         case (int)AuthAccErrorCode.AuthOK:
-                            return "驗證成功"
-                                ;
+                            return "驗證成功";
+
                         default:
                             return "失敗";
                     }
@@ -503,7 +521,11 @@ namespace OnlineShop.Controllers
 
                     cmd.Parameters.AddWithValue("@f_acc", value.Account);
 
-                    dic.TryAdd(value.Account, VerifyKey());
+                    TimeCode timeCode = new TimeCode();
+                    timeCode.KeyCode = VerifyKey();
+                    timeCode.ValidTime = DateTime.Now.AddMinutes(30);
+
+                    dic.TryAdd(value.Account, timeCode);
 
                     //開啟連線
                     cmd.Connection.Open();
@@ -598,10 +620,16 @@ namespace OnlineShop.Controllers
                 }
             }
 
-            if (value.Code != dic[value.f_acc])
-            {
-                putMemberPwdErrorStr += "【 驗證碼錯誤 】\n";
-            }
+            //if (value.Code != dic[value.f_acc])
+            //{
+            //    putMemberPwdErrorStr += "【 驗證碼錯誤 】\n";
+            //}
+            //else
+            //{
+            //    //string tempStr = string.Empty;
+            //    //dic.TryRemove(value.f_acc, out string aaa);
+            //    dic.TryRemove(value.f_acc, out _);
+            //}
 
             //錯誤訊息不為空
             if (putMemberPwdErrorStr != "")
@@ -659,5 +687,23 @@ namespace OnlineShop.Controllers
                 }
             }
         }
+
+
+        //登入檢查
+        private bool loginValidate()
+        {
+            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("Account")) ||                        //判斷Session[Account]是否為空
+                SessionDB.sessionDB[HttpContext.Session.GetString("Account")].SId != HttpContext.Session.Id ||//判斷DB SessionId與瀏覽器 SessionId是否一樣
+                SessionDB.sessionDB[HttpContext.Session.GetString("Account")].ValidTime < DateTime.Now)       //判斷是否過期
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+
     }
 }

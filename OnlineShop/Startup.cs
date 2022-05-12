@@ -41,11 +41,11 @@ namespace OnlineShop
             });
             services.AddAuthentication();
 
-            //全域套用 [Authorize]?
-            services.AddMvc(options =>
-            {
-                options.Filters.Add(new AuthorizeFilter());
-            });
+            ////全域套用 [Authorize]?
+            //services.AddMvc(options =>
+            //{
+            //    options.Filters.Add(new AuthorizeFilter());
+            //});
 
             //session設定
             services.AddSession(o =>
@@ -53,17 +53,14 @@ namespace OnlineShop
                 o.IdleTimeout = TimeSpan.FromSeconds(18000000);
             });
 
-
             services.AddMvc().ConfigureApiBehaviorOptions(options =>
             {
                 options.SuppressModelStateInvalidFilter = true; //tuer後 不管有沒有報錯 都先會進 controller
             });
-            //-------------------------------------------------------------------------------
-            //services.AddRazorPages(options =>
-            //{
-            //    options.Conventions.AuthorizeFolder("/Pages/Account","Pages");
-            //});
+
             services.AddRazorPages();
+
+            services.AddDistributedMemoryCache();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -85,13 +82,12 @@ namespace OnlineShop
             app.UseRouting();
 
 
-
             //Cookie驗證
             app.UseCookiePolicy();
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseSession();
+            app.UseSession();//啟用session
 
             app.UseEndpoints(endpoints =>
             {

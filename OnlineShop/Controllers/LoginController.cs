@@ -103,33 +103,80 @@ namespace OnlineShop.Controllers
 
                     if (cmd.ExecuteScalar() == null)
                     {
-                        return "登入失敗";
+                        return "登入失敗"; //登入失敗
                     }
-                    else
+                    else //登入成功
                     {
                         da.SelectCommand = cmd;
                         da.Fill(dt);
 
-                        //添加角色權限
-                        var claims = new List<Claim>
+                        //Session傳遞
+                        HttpContext.Session.SetString("Account", value.Account);
+                        HttpContext.Session.SetString("AccPosition", dt.Rows[0]["f_accPosition"].ToString());
+
+
+
+                        //資料庫中 Account為空 or 存的sessionId與現在的不符
+                        if (!string.IsNullOrWhiteSpace(dt.Rows[0]["f_sessionId"].ToString()) &&
+                            dt.Rows[0]["f_sessionId"].ToString() != HttpContext.Session.Id)
                         {
-                           new Claim(ClaimTypes.Name, value.Account), //存使用者名稱,
-                        };
+                            cmd.Parameters.Clear();
+                            cmd.CommandText = @"UPDATE t_member WITH(ROWLOCK) SET f_sessionId = @sessionId WHERE f_acc = @f_acc
+                                                SELECT f_sessionId FROM t_member WHERE f_acc = @f_acc ";
+                            cmd.Parameters.AddWithValue("@sessionId", HttpContext.Session.Id);
+                            cmd.Parameters.AddWithValue("@f_acc", value.Account);
 
-                        HttpContext.Session.SetString("SessionID", dt.Rows[0]["f_id"].ToString());
+                            SessionDB.SessionInfo SessionInfo = new SessionDB.SessionInfo();
+                            SessionInfo.SId = cmd.ExecuteScalar().ToString();//updata完後的sessionId
+                            SessionInfo.ValidTime = DateTime.Now.AddMinutes(30);//失效時間 =(現在時間在加30分鐘)
 
-                        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                        HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
-                        //判斷是否重複登入
-                        if (User.Identity.IsAuthenticated)
-                        {
-                            return "請先登出再進行登入";
+                            SessionDB.sessionDB.AddOrUpdate(HttpContext.Session.GetString("Account"),
+                                                            SessionInfo,
+                                                           (key, oldValue) => oldValue = SessionInfo);
+
+                            return "重複登入";  //重複登入
                         }
                         else
                         {
-                            return "登入成功";
+                            //登入成功 紀錄session 在DB中
+                            cmd.Parameters.Clear();
+                            cmd.CommandText = @"UPDATE t_member WITH(ROWLOCK) SET f_sessionId = @sessionId WHERE f_acc = @f_acc 
+                                                SELECT f_sessionId FROM t_member WHERE f_acc = @f_acc ";
+                            cmd.Parameters.AddWithValue("@sessionId", HttpContext.Session.Id);
+                            cmd.Parameters.AddWithValue("@f_acc", value.Account);
+
+                            SessionDB.SessionInfo SessionInfo = new SessionDB.SessionInfo();
+                            SessionInfo.SId = cmd.ExecuteScalar().ToString(); //updata完後的sessionId
+                            SessionInfo.ValidTime = DateTime.Now.AddMinutes(30);//失效時間 =(現在時間在加30分鐘)
+
+                            SessionDB.sessionDB.AddOrUpdate(HttpContext.Session.GetString("Account"),
+                                                            SessionInfo,
+                                                           (key, oldValue) => oldValue = SessionInfo);
+
+                            return "loginOK";  //登入OK
                         }
+
+                        ////添加角色權限
+                        //var claims = new List<Claim>
+                        //{
+                        //   new Claim(ClaimTypes.Name, value.Account), //存使用者名稱,
+                        //};
+
+                        //HttpContext.Session.SetString("SessionID", dt.Rows[0]["f_id"].ToString());
+
+                        //var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                        //HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+
+                        ////判斷是否重複登入
+                        //if (User.Identity.IsAuthenticated)
+                        //{
+                        //    return "請先登出再進行登入";
+                        //}
+                        //else
+                        //{
+                        //    return "登入成功";
+                        //}
                     }
                 }
                 catch (Exception ex)
@@ -177,15 +224,65 @@ namespace OnlineShop.Controllers
             #endregion
         }
 
+        //登出
         [HttpDelete("Logout")]
         public void logout()
         {
-            HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            //HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            //登入&身分檢查
+            if (!loginValidate())
+            {
+                return;
+            }
+
+
+            SqlCommand cmd = null;
+            DataTable dt = new DataTable();
+            SqlDataAdapter da = new SqlDataAdapter();
+            try
+            {
+
+                // 資料庫連線
+                cmd = new SqlCommand();
+                cmd.Connection = new SqlConnection(SQLConnectionString);
+                //清空DB的sessionId
+                cmd.CommandText = @"UPDATE t_member WITH(ROWLOCK) SET f_sessionId = '' WHERE f_acc = @f_acc ";
+                cmd.Parameters.AddWithValue("@f_acc", HttpContext.Session.GetString("Account"));
+                //開啟連線
+                cmd.Connection.Open();
+                cmd.ExecuteScalar();
+            }
+            finally
+            {
+                if (cmd != null)
+                {
+                    cmd.Connection.Close();
+                    cmd.Parameters.Clear();
+                }
+            }
+
+            //清空Dictionary & Session[Account]中的值
+
+            SessionDB.sessionDB.TryRemove(HttpContext.Session.GetString("Account"), out _);
+            HttpContext.Session.Clear();
         }
         [HttpGet("NoLogin")]
         public string noLogin()
         {
             return "未登入";
+        }
+        private bool loginValidate()
+        {
+            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("Account")) ||                        //判斷Session[Account]是否為空
+                SessionDB.sessionDB[HttpContext.Session.GetString("Account")].SId != HttpContext.Session.Id ||//判斷DB SessionId與瀏覽器 SessionId是否一樣
+                SessionDB.sessionDB[HttpContext.Session.GetString("Account")].ValidTime < DateTime.Now)       //判斷是否過期
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
     }
 }
