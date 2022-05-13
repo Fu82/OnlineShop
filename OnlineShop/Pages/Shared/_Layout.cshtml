@@ -11,58 +11,79 @@
 <body>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <header>
-        @if (User.Identity.IsAuthenticated)
-        {
-            <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-                <div class="container">
-                    @*<a class="navbar-brand" asp-area="" asp-page="/Index">OnlineShop</a>*@
-                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                            aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-                        <ul class="navbar-nav flex-grow-1">
-                            <li class="nav-item wordRight">
-                                <a class="nav-link text-dark" asp-area="" asp-page="/Index">首頁</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-page="/Member/MemberMenu">會員中心</a>
-                            </li>
-                            <li class="nav-item">
-                                <a id="btnLogout" class="nav-link text-dark">登出</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link wordRed">@User.Identity.Name</a>
-                            </li>
-                        </ul>
-                    </div>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container">
+                @{ if (!string.IsNullOrWhiteSpace(Accessor.HttpContext.Session.GetString("Account")) &&
+                             SessionDB.sessionDB[Accessor.HttpContext.Session.GetString("Account")].SId == Accessor.HttpContext.Session.Id)
+                    {
+                        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                                aria-expanded="false" aria-label="Toggle navigation">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                            <ul class="navbar-nav flex-grow-1">
+                                <li class="nav-item wordRight">
+                                    <a class="nav-link text-dark" asp-area="" asp-page="/Index">首頁</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-page="/Member/MemberMenu">會員中心</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a id="btnLogout" class="nav-link text-dark">登出</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link wordRed">@Accessor.HttpContext.Session.GetString("Account")</a>
+                                </li>
+                            </ul>
+                        </div>
+                        } 
+                    }
                 </div>
             </nav>
-        }
-        else
-        {
-            <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-                <div class="container">
-                    @*<a class="navbar-brand" asp-area="" asp-page="/Index">OnlineShop</a>*@
-                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                            aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-                        <ul class="navbar-nav flex-grow-1">
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-page="/Index">首頁</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-page="/Member/AddMember">註冊</a>
-                            </li>
-                        </ul>
-                    </div>
+        </header>
+        @*<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container">
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item wordRight">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">首頁</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Member/MemberMenu">會員中心</a>
+                        </li>
+                        <li class="nav-item">
+                            <a id="btnLogout" class="nav-link text-dark">登出</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link wordRed">@User.Identity.Name</a>
+                        </li>
+                    </ul>
                 </div>
-            </nav>
-        }
-
-    </header>
+            </div>
+        </nav>*@
+        <!--<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <div class="container">-->
+        @*<a class="navbar-brand" asp-area="" asp-page="/Index">OnlineShop</a>*@
+        <!--<button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                <ul class="navbar-nav flex-grow-1">
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-page="/Index">首頁</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-page="/Member/AddMember">註冊</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>-->
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()

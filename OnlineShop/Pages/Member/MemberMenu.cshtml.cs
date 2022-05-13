@@ -1,29 +1,29 @@
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using MyNet5ApiAdoTest.Services;
+using System.Data;
+using static OnlineShop.Pages.Member.BasePage;
 
 namespace OnlineShop.Pages.Member
 {
-    public class MemberMenuModel : PageModel
+    public class MemberMenuModel : BasePageModel
     {
         private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
 
-        public string Session01;
+        public string MemberID;
         public string accName;
         public string accAddress;
         public string accGold;
         public void OnGet()
         {
-            Session01 = HttpContext.Session.GetString("SessionID");
+            if (!LoginValidate())
+            {
+                Response.Redirect("/Login");
+                return;
+            }
+
+            MemberID = HttpContext.Session.GetString("MemberID");
 
             SqlCommand cmd = null;
             DataTable dt = new DataTable();
@@ -33,7 +33,7 @@ namespace OnlineShop.Pages.Member
             cmd = new SqlCommand();
             cmd.Connection = new SqlConnection(SQLConnectionString);
             cmd.CommandText = @"EXEC pro_onlineShop_getMemberList @Id";
-            cmd.Parameters.AddWithValue("@Id", int.Parse(Session01));
+            cmd.Parameters.AddWithValue("@Id", int.Parse(MemberID));
 
             //é_†¢ßB¾€
             cmd.Connection.Open();
@@ -46,9 +46,6 @@ namespace OnlineShop.Pages.Member
 
             //êPé]ßB¾€
             cmd.Connection.Close();
-            //HttpContext.Session.Remove("SessionID");
-            //Session01 = HttpContext.Session.GetString("SessionID");
-
 
         }
     }

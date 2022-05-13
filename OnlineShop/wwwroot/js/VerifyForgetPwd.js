@@ -27,7 +27,7 @@
                 contentType: "application/json",
                 dataType: "text",
                 data: JSON.stringify({
-                    "f_acc": $("#txtAccount").val(),
+                    "Account": $("#txtAccount").val(),
                     "newPwd": $("#newPassWord").val(),
                     "cfmNewPwd": $("#checkPassWord").val(),
                     "Code": $("#txtCode").val()

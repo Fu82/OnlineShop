@@ -30,13 +30,11 @@
                 }),
                 success: function (result) {
                     alert(result);
-                    if (result == "帳號新增成功")
-                    {
-                        location.href = "/Member/VerifyMember"
-                    }
-                    else
-                    {
-                        alert(result)
+                    let some = "帳號新增成功  ";
+                    if (some.indexOf("帳號新增成功  ")){
+                        location.href = "/Member/VerifyMember";
+                    } else {
+                        alert(result);
                     }
                 },
                 error: function (error) {

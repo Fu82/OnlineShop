@@ -14,11 +14,9 @@
                     "Account": $("#txtAccount").val()
                 }),
                 success: function (result) {
-                    if (result == "帳號正確") {
-                        alert(result);
+                    if (String.prototype.indexOf("帳號正確  ")) {
                         location.href = "/Member/VerifyMember";
-                    }
-                    else {
+                    } else {
                         alert(result);
                     }
                 },

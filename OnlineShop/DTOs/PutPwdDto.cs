@@ -8,7 +8,7 @@ namespace OnlineShop.Controllers
 {
     public class PutPwdDto
     {
-        public string f_acc { get; set; }
+        public string Account { get; set; }
         public string newPwd { get; set; }
         public string cfmNewPwd { get; set; }
 

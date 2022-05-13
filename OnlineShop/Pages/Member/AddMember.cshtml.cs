@@ -12,7 +12,6 @@ using MyNet5ApiAdoTest.Services;
 
 namespace OnlineShop.Pages
 {
-    [AllowAnonymous]
     public class AddMemberModel : PageModel
     {
         private static string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");

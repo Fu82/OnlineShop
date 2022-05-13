@@ -1,0 +1,27 @@
+﻿@page
+@model IndexModel
+@{
+}
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<form id="form1" name="form1">
+    <div class="panel panelPrimary">
+        <div class="panelBody">
+            <div class="formGroup">
+                <label>帳號</label>
+                <input id="txtAccount" type="text" class="formControl" maxlength="20">
+            </div>
+            <div class="formGroup">
+                <label>密碼</label>
+                <input id="passWord" type="password" class="formControl" maxlength="16">
+            </div>
+        </div>
+        <div class="panelFooter">
+            <button id="btnPost" type="button" class="btn btnPrimary">登入</button>
+            @Html.ActionLink("忘記密碼", "ForgetPwd", "Member")
+        </div>
+    </div>
+</form>
+
+<script src="./js/Login.js"></script>

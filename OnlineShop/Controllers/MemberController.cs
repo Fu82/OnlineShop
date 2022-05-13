@@ -23,38 +23,38 @@ namespace OnlineShop.Controllers
         //SQL連線字串 SQLConnectionString
         private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
 
-        /// <summary>
-        /// 產生4位亂數字串
-        /// </summary>
-        public static string VerifyKey()
-        {
-            string key = "";
-            Random r = new Random();
+        ///// <summary>
+        ///// 產生4位亂數字串
+        ///// </summary>
+        //public static string VerifyKey()
+        //{
+        //    string key = "";
+        //    Random r = new Random();
 
-            int num1 = r.Next(0, 9);
-            int num2 = r.Next(0, 9);
-            int num3 = r.Next(0, 9);
-            int num4 = r.Next(0, 9);
+        //    int num1 = r.Next(0, 9);
+        //    int num2 = r.Next(0, 9);
+        //    int num3 = r.Next(0, 9);
+        //    int num4 = r.Next(0, 9);
 
-            int[] numbers = new int[4] { num1, num2, num3, num4 };
-            for (int i = 0; i < numbers.Length; i++)
-            {
-                key += numbers[i].ToString();
-            }
-            return key;
-        }
+        //    int[] numbers = new int[4] { num1, num2, num3, num4 };
+        //    for (int i = 0; i < numbers.Length; i++)
+        //    {
+        //        key += numbers[i].ToString();
+        //    }
+        //    return key;
+        //}
 
-        /// <summary>
-        /// 存取4位數至記憶體
-        /// </summary>
-        public static ConcurrentDictionary<string, TimeCode> dic = new ConcurrentDictionary<string, TimeCode>();
+        ///// <summary>
+        ///// 存取4位數至記憶體
+        ///// </summary>
+        //public static ConcurrentDictionary<string, TimeCode> dic = new ConcurrentDictionary<string, TimeCode>();
 
-        public class TimeCode
-        {
-            public string KeyCode { get; set; } = string.Empty;
+        //public class TimeCode
+        //{
+        //    public string KeyCode { get; set; } = string.Empty;
 
-            public DateTime ValidTime { get; set; } = DateTime.Now.AddMinutes(30);
-        }
+        //    public DateTime ValidTime { get; set; } = DateTime.Now.AddMinutes(10);
+        //}
 
         //已註解
         #region GetAccount EF舊寫法用所需
@@ -132,6 +132,7 @@ namespace OnlineShop.Controllers
         }
         #endregion
 
+
         //增加帳號
         [HttpPost("AddAcc")]
         public string AddAcc([FromBody] MemberSelectDto value)
@@ -150,28 +151,28 @@ namespace OnlineShop.Controllers
             {
                 if (!InTool.IsENAndNumber(value.Account))
                 {
-                    addMemberErrorStr += "【 🚫帳號只能為英數 】";
+                    addMemberErrorStr += "【 🔒帳號只能為英數 】";
                 }
                 if (value.Account.Length > 20 || value.Account.Length < 8)
                 {
-                    addMemberErrorStr += "【 🚫帳號長度應介於8～20個數字之間 】\n";
+                    addMemberErrorStr += "【 🔒帳號長度應介於8～20個數字之間 】\n";
                 }
             }
 
             //密碼資料驗證
             if (string.IsNullOrEmpty(value.Pwd))
             {
-                addMemberErrorStr += "[密碼不可為空]\n";
+                addMemberErrorStr += "【 🚫密碼不可為空 】\n";
             }
             else
             {
                 if (!InTool.IsENAndNumber(value.Pwd))
                 {
-                    addMemberErrorStr += "【 🚫密碼只能為英數 】\n";
+                    addMemberErrorStr += "【 ㊙️密碼只能為英數 】\n";
                 }
                 if (value.Pwd.Length > 16 || value.Pwd.Length < 8)
                 {
-                    addMemberErrorStr += "【 🚫密碼長度應介於8～16個數字之間 】\n";
+                    addMemberErrorStr += "【 ㊙️密碼長度應介於8～16個數字之間 】\n";
                 }
             }
 
@@ -184,11 +185,11 @@ namespace OnlineShop.Controllers
             {
                 if (!InTool.IsNumber(value.Phone))
                 {
-                    addMemberErrorStr += "【 🚫手機只能為數字 】\n";
+                    addMemberErrorStr += "【 📞手機只能為數字 】\n";
                 }
                 if (value.Phone.Length < 10)
                 {
-                    addMemberErrorStr += "【 🚫手機格式錯誤 】\n";
+                    addMemberErrorStr += "【 📞手機格式錯誤 】\n";
                 }
             }
 
@@ -201,7 +202,7 @@ namespace OnlineShop.Controllers
             {
                 if (!InTool.IsMail(value.Mail))
                 {
-                    addMemberErrorStr += "【 🚫信箱格式錯誤 】\n";
+                    addMemberErrorStr += "【 📧信箱格式錯誤 】\n";
                 }
             }
 
@@ -232,13 +233,11 @@ namespace OnlineShop.Controllers
                 addMemberErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
                 int SQLReturnCode = int.Parse(addMemberErrorStr);
 
-                TimeCode timeCode = new TimeCode();
-                timeCode.KeyCode = VerifyKey();
-                timeCode.ValidTime = DateTime.Now.AddMinutes(30);
+                InCode.TimeCode timeCode = new InCode.TimeCode();
+                timeCode.KeyCode = InCode.VerifyKey();
+                timeCode.ValidTime = DateTime.Now.AddMinutes(10);
 
-                dic.TryAdd(value.Account, timeCode);
-
-                //dic.TryAdd(value.Account, VerifyKey());
+                InCode.dic.TryAdd(value.Account, timeCode);
 
                 switch (SQLReturnCode)
                 {
@@ -246,7 +245,7 @@ namespace OnlineShop.Controllers
                         return "此帳號已存在";
 
                     case (int)addACCountErrorCode.AddOK:
-                        return "帳號新增成功  " + "驗證碼： " + dic[value.Account];
+                        return "帳號新增成功  " + "驗證碼： " + InCode.dic[value.Account].KeyCode;
 
                     default:
                         return "失敗";
@@ -266,34 +265,6 @@ namespace OnlineShop.Controllers
             }
         }
 
-        //取得會員資料
-        [HttpGet("GetMember")]
-        //public IEnumerable<AccountSelectDto> Get()
-        public string GetMember([FromQuery] int id )
-        {
-            SqlCommand cmd = null;
-            DataTable dt = new DataTable();
-            SqlDataAdapter da = new SqlDataAdapter();
-
-            // 資料庫連線&SQL指令
-            cmd = new SqlCommand();
-            cmd.Connection = new SqlConnection(SQLConnectionString);
-            cmd.CommandText = @"EXEC pro_onlineShop_getMemberList @Id";
-            cmd.Parameters.AddWithValue("@Id", id);
-
-            //開啟連線
-            cmd.Connection.Open();
-            da.SelectCommand = cmd;
-            da.Fill(dt);
-
-            //關閉連線
-            cmd.Connection.Close();
-
-            //DataTable轉Json;
-            var result = Tool.InTool.DataTableJson(dt);
-
-            return result;
-        }
 
         //驗證帳號
         [HttpPut("VerifyMember")]
@@ -312,58 +283,59 @@ namespace OnlineShop.Controllers
             //帳號資料驗證
             if (value.Account == "" || (string.IsNullOrEmpty(value.Account)))
             {
-                AuthMemberErrorStr += "【 帳號不可為空 】\n";
+                AuthMemberErrorStr += "【 🚫帳號不可為空 】\n";
             }
             else
             {
                 if (!InTool.IsENAndNumber(value.Account))
                 {
-                    AuthMemberErrorStr += "【 🚫帳號只能為英數 】\n";
+                    AuthMemberErrorStr += "【 🔒帳號只能為英數 】\n";
                 }
                 if (value.Account.Length > 20 || value.Account.Length < 3)
                 {
-                    AuthMemberErrorStr += "【 🚫帳號長度應介於8～20個數字之間 】\n";
+                    AuthMemberErrorStr += "【 🔒帳號長度應介於8～20個數字之間 】\n";
                 }
             }
 
             //密碼資料驗證
             if (value.Pwd == "" || (string.IsNullOrEmpty(value.Pwd)))
             {
-                AuthMemberErrorStr += "【 密碼不可為空 】\n";
+                AuthMemberErrorStr += "【 🚫密碼不可為空 】\n";
             }
             else
             {
                 if (!InTool.IsENAndNumber(value.Pwd))
                 {
-                    AuthMemberErrorStr += "【 🚫密碼只能為英數 】\n";
+                    AuthMemberErrorStr += "【 ㊙️密碼只能為英數 】\n";
                 }
                 if (value.Pwd.Length > 16 || value.Pwd.Length < 8)
                 {
-                    AuthMemberErrorStr += "【 🚫密碼長度應介於8～16個數字之間 】\n";
+                    AuthMemberErrorStr += "【 ㊙️密碼長度應介於8～16個數字之間 】\n";
                 }
             }
 
             //驗證碼資料驗證
             if (value.Code == "")
             {
-                AuthMemberErrorStr += "【 驗證碼不可為空 】\n";
+                AuthMemberErrorStr += "【 🚫驗證碼不可為空 】\n";
             }
             else
             {
                 if (!InTool.IsNumber(value.Code))
                 {
-                    AuthMemberErrorStr += "【 🚫驗證碼只能為數字 】\n";
+                    AuthMemberErrorStr += "【 🔑驗證碼只能為數字 】\n";
                 }
             }
 
-            //if (value.Code != dic[value.Account])
-            //{
-            //    AuthMemberErrorStr += "【 驗證碼錯誤 】\n";
-            //}
-            //else
-            //{
-            //    dic.TryRemove(value.Account, out _);
-            //}
+            if (value.Code != InCode.dic[value.Account].KeyCode)
+            {
+                AuthMemberErrorStr += "【 🔑驗證碼錯誤 】\n";
+            }
+            else if (InCode.dic[value.Account].ValidTime < DateTime.Now)
+            {
+                AuthMemberErrorStr += "【 🔑驗證碼失效 】\n";
+                InCode.dic.TryRemove(value.Account, out _);
+            }
 
             //錯誤訊息不為空
             if (AuthMemberErrorStr != "")
@@ -394,6 +366,7 @@ namespace OnlineShop.Controllers
                     switch (SQLReturnCode)
                     {
                         case (int)AuthAccErrorCode.AuthOK:
+                            InCode.dic.TryRemove(value.Account, out _);
                             return "驗證成功";
 
                         default:
@@ -414,6 +387,37 @@ namespace OnlineShop.Controllers
                 }
             }
         }
+
+
+        //取得會員資料
+        [HttpGet("GetMember")]
+        //public IEnumerable<AccountSelectDto> Get()
+        public string GetMember([FromQuery] int id)
+        {
+            SqlCommand cmd = null;
+            DataTable dt = new DataTable();
+            SqlDataAdapter da = new SqlDataAdapter();
+
+            // 資料庫連線&SQL指令
+            cmd = new SqlCommand();
+            cmd.Connection = new SqlConnection(SQLConnectionString);
+            cmd.CommandText = @"EXEC pro_onlineShop_getMemberList @Id";
+            cmd.Parameters.AddWithValue("@Id", id);
+
+            //開啟連線
+            cmd.Connection.Open();
+            da.SelectCommand = cmd;
+            da.Fill(dt);
+
+            //關閉連線
+            cmd.Connection.Close();
+
+            //DataTable轉Json;
+            var result = Tool.InTool.DataTableJson(dt);
+
+            return result;
+        }
+
 
         //編輯資料
         [HttpPut("PutMember")]
@@ -473,6 +477,7 @@ namespace OnlineShop.Controllers
             }
         }
 
+
         //忘記密碼
         [HttpPost("PostForgetPwd")]
         public string PostMemberPwd([FromBody] MemberSelectDto value)
@@ -488,17 +493,17 @@ namespace OnlineShop.Controllers
             //帳號資料驗證
             if (value.Account == "" || (string.IsNullOrEmpty(value.Account)))
             {
-                postMemberPwdErrorStr += "【 帳號不可為空 】\n";
+                postMemberPwdErrorStr += "【 🚫帳號不可為空 】\n";
             }
             else
             {
                 if (!InTool.IsENAndNumber(value.Account))
                 {
-                    postMemberPwdErrorStr += "【 🚫帳號只能為英數 】\n";
+                    postMemberPwdErrorStr += "【 🔒帳號只能為英數 】\n";
                 }
                 if (value.Account.Length > 20 || value.Account.Length < 3)
                 {
-                    postMemberPwdErrorStr += "【 🚫帳號長度應介於8～20個數字之間 】\n";
+                    postMemberPwdErrorStr += "【 🔒帳號長度應介於8～20個數字之間 】\n";
                 }
             };
 
@@ -521,19 +526,19 @@ namespace OnlineShop.Controllers
 
                     cmd.Parameters.AddWithValue("@f_acc", value.Account);
 
-                    TimeCode timeCode = new TimeCode();
-                    timeCode.KeyCode = VerifyKey();
-                    timeCode.ValidTime = DateTime.Now.AddMinutes(30);
-
-                    dic.TryAdd(value.Account, timeCode);
-
                     //開啟連線
                     cmd.Connection.Open();
                     postMemberPwdErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
 
                     if (!string.IsNullOrWhiteSpace(postMemberPwdErrorStr))
                     {
-                        return "帳號正確  " + "驗證碼：" + dic[value.Account];
+                        InCode.TimeCode timeCode = new InCode.TimeCode();
+                        timeCode.KeyCode = InCode.VerifyKey();
+                        timeCode.ValidTime = DateTime.Now.AddMinutes(10);
+
+                        InCode.dic.TryAdd(value.Account, timeCode);
+
+                        return "帳號正確  " + "驗證碼：" + InCode.dic[value.Account].KeyCode;
                     }
                     else
                     {
@@ -555,6 +560,7 @@ namespace OnlineShop.Controllers
             }
         }
 
+
         //驗證新密碼
         [HttpPut("VerifyForgetPwd")]
         public string PutMemberPwd([FromBody] PutPwdDto value)
@@ -569,19 +575,19 @@ namespace OnlineShop.Controllers
             string putMemberPwdErrorStr = "";//記錄錯誤訊息
 
             //帳號資料驗證
-            if (value.f_acc == "" || (string.IsNullOrEmpty(value.f_acc)))
+            if (value.Account == "" || (string.IsNullOrEmpty(value.Account)))
             {
-                putMemberPwdErrorStr += "【 帳號不可為空 】\n";
+                putMemberPwdErrorStr += "【 🚫帳號不可為空 】\n";
             }
             else
             {
-                if (!InTool.IsENAndNumber(value.f_acc))
+                if (!InTool.IsENAndNumber(value.Account))
                 {
-                    putMemberPwdErrorStr += "【 🚫帳號只能為英數 】\n";
+                    putMemberPwdErrorStr += "【 🔒帳號只能為英數 】\n";
                 }
-                if (value.f_acc.Length > 20 || value.f_acc.Length < 3)
+                if (value.Account.Length > 20 || value.Account.Length < 3)
                 {
-                    putMemberPwdErrorStr += "【 🚫帳號長度應介於8～20個數字之間 】\n";
+                    putMemberPwdErrorStr += "【 🔒帳號長度應介於8～20個數字之間 】\n";
                 }
             }
 
@@ -594,42 +600,43 @@ namespace OnlineShop.Controllers
             {
                 if (value.newPwd != value.cfmNewPwd)//空字串判斷and Null值判斷皆用IsNullOrEmpty
                 {
-                    putMemberPwdErrorStr += "【 🚫新密碼與確認新密碼需相同 】\n";
+                    putMemberPwdErrorStr += "【 ㊙️新密碼與確認新密碼需相同 】\n";
                 }
 
                 if (!InTool.IsENAndNumber(value.newPwd) || !InTool.IsENAndNumber(value.cfmNewPwd))
                 {
-                    putMemberPwdErrorStr += "【 🚫密碼只能為英數 】\n";
+                    putMemberPwdErrorStr += "【 ㊙️密碼只能為英數 】\n";
                 }
                 if (value.newPwd.Length > 16 || value.newPwd.Length < 8)
                 {
-                    putMemberPwdErrorStr += "【 🚫密碼長度應介於8～16個數字之間 】\n";
+                    putMemberPwdErrorStr += "【 ㊙️密碼長度應介於8～16個數字之間 】\n";
                 }
             }
+
 
             //驗證碼資料驗證
             if (value.Code == "")
             {
-                putMemberPwdErrorStr += "【 驗證碼不可為空 】\n";
+                putMemberPwdErrorStr += "【 🚫驗證碼不可為空 】\n";
             }
             else
             {
                 if (!InTool.IsNumber(value.Code))
                 {
-                    putMemberPwdErrorStr += "【 🚫驗證碼只能為數字 】\n";
+                    putMemberPwdErrorStr += "【 🔑驗證碼只能為數字 】\n";
                 }
             }
 
-            //if (value.Code != dic[value.f_acc])
-            //{
-            //    putMemberPwdErrorStr += "【 驗證碼錯誤 】\n";
-            //}
-            //else
-            //{
-            //    //string tempStr = string.Empty;
-            //    //dic.TryRemove(value.f_acc, out string aaa);
-            //    dic.TryRemove(value.f_acc, out _);
-            //}
+            if (value.Code != InCode.dic[value.Account].KeyCode)
+            {
+                putMemberPwdErrorStr += "【 🔑驗證碼錯誤 】\n";
+            }
+            else if (InCode.dic[value.Account].ValidTime < DateTime.Now)
+            {
+                putMemberPwdErrorStr += "【 🔑驗證碼失效 】\n";
+
+                InCode.dic.TryRemove(value.Account, out _);
+            }
 
             //錯誤訊息不為空
             if (putMemberPwdErrorStr != "")
@@ -648,7 +655,7 @@ namespace OnlineShop.Controllers
 
                     cmd.CommandText = @"EXEC pro_onlineShop_putForgetMemberPwd @f_acc, @newPwd, @cfmNewPwd";
 
-                    cmd.Parameters.AddWithValue("@f_acc", value.f_acc);
+                    cmd.Parameters.AddWithValue("@f_acc", value.Account);
                     cmd.Parameters.AddWithValue("@newPwd", Tool.InTool.PwdToMD5(value.newPwd));
                     cmd.Parameters.AddWithValue("@cfmNewPwd", Tool.InTool.PwdToMD5(value.cfmNewPwd));
 
@@ -667,6 +674,7 @@ namespace OnlineShop.Controllers
                             return "此帳號不存在";
 
                         case (int)putMemberPwdErrorCode.PutOK:
+                            InCode.dic.TryRemove(value.Account, out _);
                             return "密碼修改成功";
 
                         default:

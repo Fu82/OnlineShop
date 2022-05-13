@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace OnlineShop.Pages.Member
 {
-    [AllowAnonymous]
     public class VerifyMemberModel : PageModel
     {
         public void OnGet()

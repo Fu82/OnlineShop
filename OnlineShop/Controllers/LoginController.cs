@@ -40,39 +40,44 @@ namespace OnlineShop.Controllers
                 return "輸入參數有誤";
             }
 
+            if (User.Identity.IsAuthenticated)
+            {
+                return "請先登出再進行登入";
+            }
+
             string loginErrorStr = "";//記錄錯誤訊息
 
             //帳號資料驗證
             if (value.Account == "" || (string.IsNullOrEmpty(value.Account)))
             {
-                loginErrorStr += "【 帳號不可為空 】\n";
+                loginErrorStr += "【 🚫帳號不可為空 】\n";
             }
             else
             {
                 if (!InTool.IsENAndNumber(value.Account))
                 {
-                    loginErrorStr += "【 🚫帳號只能為英數 】\n";
+                    loginErrorStr += "【 🔒帳號只能為英數 】\n";
                 }
                 if (value.Account.Length > 20 || value.Account.Length < 3)
                 {
-                    loginErrorStr += "【 🚫帳號長度應介於8～20個數字之間 】\n";
+                    loginErrorStr += "【 🔒帳號長度應介於8～20個數字之間 】\n";
                 }
             };
 
             //密碼資料驗證
             if (value.Pwd == "" || (string.IsNullOrEmpty(value.Pwd)))
             {
-                loginErrorStr += "【 密碼不可為空 】\n";
+                loginErrorStr += "【 🚫密碼不可為空 】\n";
             }
             else
             {
                 if (!InTool.IsENAndNumber(value.Pwd))
                 {
-                    loginErrorStr += "【 🚫密碼只能為英數 】\n";
+                    loginErrorStr += "【 ㊙️密碼只能為英數 】\n";
                 }
                 if (value.Pwd.Length > 16 || value.Pwd.Length < 8)
                 {
-                    loginErrorStr += "【 🚫密碼長度應介於8～16個數字之間 】\n";
+                    loginErrorStr += "【 ㊙️密碼長度應介於8～16個數字之間 】\n";
                 }
             }
 
@@ -112,7 +117,7 @@ namespace OnlineShop.Controllers
 
                         //Session傳遞
                         HttpContext.Session.SetString("Account", value.Account);
-                        HttpContext.Session.SetString("AccPosition", dt.Rows[0]["f_accPosition"].ToString());
+                        //HttpContext.Session.SetString("AccPosition", dt.Rows[0]["f_accPosition"].ToString());
 
 
 
@@ -154,7 +159,7 @@ namespace OnlineShop.Controllers
                                                             SessionInfo,
                                                            (key, oldValue) => oldValue = SessionInfo);
 
-                            return "loginOK";  //登入OK
+                            return "登入成功";
                         }
 
                         ////添加角色權限
