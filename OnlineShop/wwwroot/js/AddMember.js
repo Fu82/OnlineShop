@@ -29,9 +29,8 @@
                     "Mail": $("#txtMail").val()
                 }),
                 success: function (result) {
-                    alert(result);
-                    let some = "帳號新增成功  ";
-                    if (some.indexOf("帳號新增成功  ")){
+                    if (result.indexOf("帳號新增成功") >= 0) {
+                        alert(result);
                         location.href = "/Member/VerifyMember";
                     } else {
                         alert(result);

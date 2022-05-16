@@ -9,7 +9,7 @@ namespace OnlineShop.Tool
     public class InCode
     {
         /// <summary>
-        /// 產生4位亂數字串
+        /// 產生4位亂數驗證碼字串
         /// </summary>
         public static string VerifyKey()
         {
@@ -30,7 +30,7 @@ namespace OnlineShop.Tool
         }
 
         /// <summary>
-        /// 存取4位數至記憶體
+        /// 存取4位亂數驗證碼至記憶體
         /// </summary>
         public static ConcurrentDictionary<string, TimeCode> dic = new ConcurrentDictionary<string, TimeCode>();
 

@@ -23,39 +23,6 @@ namespace OnlineShop.Controllers
         //SQL連線字串 SQLConnectionString
         private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
 
-        ///// <summary>
-        ///// 產生4位亂數字串
-        ///// </summary>
-        //public static string VerifyKey()
-        //{
-        //    string key = "";
-        //    Random r = new Random();
-
-        //    int num1 = r.Next(0, 9);
-        //    int num2 = r.Next(0, 9);
-        //    int num3 = r.Next(0, 9);
-        //    int num4 = r.Next(0, 9);
-
-        //    int[] numbers = new int[4] { num1, num2, num3, num4 };
-        //    for (int i = 0; i < numbers.Length; i++)
-        //    {
-        //        key += numbers[i].ToString();
-        //    }
-        //    return key;
-        //}
-
-        ///// <summary>
-        ///// 存取4位數至記憶體
-        ///// </summary>
-        //public static ConcurrentDictionary<string, TimeCode> dic = new ConcurrentDictionary<string, TimeCode>();
-
-        //public class TimeCode
-        //{
-        //    public string KeyCode { get; set; } = string.Empty;
-
-        //    public DateTime ValidTime { get; set; } = DateTime.Now.AddMinutes(10);
-        //}
-
         //已註解
         #region GetAccount EF舊寫法用所需
         //private readonly OnlineShopContext _OnlineShopContext;
@@ -112,6 +79,18 @@ namespace OnlineShop.Controllers
             //會員帳號更新成功
             //</summary >
             AuthOK = 0
+        }
+        private enum putKeyErrorCode
+        {
+            //<summary >
+            //
+            //</summary >
+            PutKeyOK = 0,
+
+            //<summary >
+            //帳號不存在
+            //</summary >
+            AccIsNull = 101
         }
         private enum putMemberPwdErrorCode //忘記密碼會員驗證
         {
@@ -271,14 +250,14 @@ namespace OnlineShop.Controllers
         //public IEnumerable<AccountSelectDto> Get()
         public string VerifyMember([FromBody] MemberSelectDto value)
         {
+
+            string AuthMemberErrorStr = "";//記錄錯誤訊息
+
             //查詢伺服器狀態是否正常
             if (ModelState.IsValid == false)
             {
-                /*****/
                 return "輸入參數有誤";
             }
-
-            string AuthMemberErrorStr = "";//記錄錯誤訊息
 
             //帳號資料驗證
             if (value.Account == "" || (string.IsNullOrEmpty(value.Account)))
@@ -327,16 +306,6 @@ namespace OnlineShop.Controllers
                 }
             }
 
-            if (value.Code != InCode.dic[value.Account].KeyCode)
-            {
-                AuthMemberErrorStr += "【 🔑驗證碼錯誤 】\n";
-            }
-            else if (InCode.dic[value.Account].ValidTime < DateTime.Now)
-            {
-                AuthMemberErrorStr += "【 🔑驗證碼失效 】\n";
-                InCode.dic.TryRemove(value.Account, out _);
-            }
-
             //錯誤訊息不為空
             if (AuthMemberErrorStr != "")
             {
@@ -366,8 +335,21 @@ namespace OnlineShop.Controllers
                     switch (SQLReturnCode)
                     {
                         case (int)AuthAccErrorCode.AuthOK:
-                            InCode.dic.TryRemove(value.Account, out _);
-                            return "驗證成功";
+
+                            if (value.Code != InCode.dic[value.Account].KeyCode)
+                            {
+                                return "【 🔑驗證碼錯誤 】";
+                            }
+                            else if (InCode.dic[value.Account].ValidTime < DateTime.Now)
+                            {
+                                InCode.dic.TryRemove(value.Account, out _);
+                                return "【 🔑驗證碼失效 】";
+                            }
+                            else
+                            {
+                                InCode.dic.TryRemove(value.Account, out _);
+                                return "驗證成功";
+                            }
 
                         default:
                             return "失敗";
@@ -394,23 +376,41 @@ namespace OnlineShop.Controllers
         //public IEnumerable<AccountSelectDto> Get()
         public string GetMember([FromQuery] int id)
         {
+            //登入&身分檢查
+            if (!loginValidate())
+            {
+                return "已從另一地點登入,轉跳至登入頁面";
+            }
+
             SqlCommand cmd = null;
             DataTable dt = new DataTable();
             SqlDataAdapter da = new SqlDataAdapter();
+            try
+            {
+                // 資料庫連線&SQL指令
+                cmd = new SqlCommand();
+                cmd.Connection = new SqlConnection(SQLConnectionString);
+                cmd.CommandText = @"EXEC pro_onlineShop_getMemberList @f_Id";
+                cmd.Parameters.AddWithValue("@f_Id", id);
 
-            // 資料庫連線&SQL指令
-            cmd = new SqlCommand();
-            cmd.Connection = new SqlConnection(SQLConnectionString);
-            cmd.CommandText = @"EXEC pro_onlineShop_getMemberList @Id";
-            cmd.Parameters.AddWithValue("@Id", id);
-
-            //開啟連線
-            cmd.Connection.Open();
-            da.SelectCommand = cmd;
-            da.Fill(dt);
-
-            //關閉連線
-            cmd.Connection.Close();
+                //開啟連線
+                cmd.Connection.Open();
+                da.SelectCommand = cmd;
+                da.Fill(dt);
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+            finally
+            {
+                //關閉連線
+                if (cmd != null)
+                {
+                    cmd.Parameters.Clear();
+                    cmd.Connection.Close();
+                }
+            }
 
             //DataTable轉Json;
             var result = Tool.InTool.DataTableJson(dt);
@@ -423,6 +423,12 @@ namespace OnlineShop.Controllers
         [HttpPut("PutMember")]
         public string PutAcc([FromQuery] int id, [FromBody] MemberSelectDto value)
         {
+            //登入&身分檢查
+            if (!loginValidate())
+            {
+                return "已從另一地點登入,轉跳至登入頁面";
+            }
+
             string putMemberErrorStr = "";//記錄錯誤訊息
 
             //查詢資料庫狀態是否正常
@@ -459,6 +465,7 @@ namespace OnlineShop.Controllers
                 {
                     case (int)PutAccErrorCode.PutOK:
                         return "帳號更新成功";
+
                     default:
                         return "失敗";
                 }
@@ -505,7 +512,7 @@ namespace OnlineShop.Controllers
                 {
                     postMemberPwdErrorStr += "【 🔒帳號長度應介於8～20個數字之間 】\n";
                 }
-            };
+            }
 
             //錯誤訊息不為空
             if (postMemberPwdErrorStr != "")
@@ -529,20 +536,24 @@ namespace OnlineShop.Controllers
                     //開啟連線
                     cmd.Connection.Open();
                     postMemberPwdErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
+                    int SQLReturnCode = int.Parse(postMemberPwdErrorStr);
 
-                    if (!string.IsNullOrWhiteSpace(postMemberPwdErrorStr))
+                    InCode.TimeCode timeCode = new InCode.TimeCode();
+                    timeCode.KeyCode = InCode.VerifyKey();
+                    timeCode.ValidTime = DateTime.Now.AddMinutes(10);
+
+                    InCode.dic.TryAdd(value.Account, timeCode);
+
+                    switch (SQLReturnCode)
                     {
-                        InCode.TimeCode timeCode = new InCode.TimeCode();
-                        timeCode.KeyCode = InCode.VerifyKey();
-                        timeCode.ValidTime = DateTime.Now.AddMinutes(10);
+                        case (int)putKeyErrorCode.AccIsNull:
+                            return "此帳號不存在";
 
-                        InCode.dic.TryAdd(value.Account, timeCode);
+                        case (int)putKeyErrorCode.PutKeyOK:
+                            return "帳號正確  " + "驗證碼：" + InCode.dic[value.Account].KeyCode;
 
-                        return "帳號正確  " + "驗證碼：" + InCode.dic[value.Account].KeyCode;
-                    }
-                    else
-                    {
-                        return "失敗";
+                        default:
+                            return "失敗";
                     }
                 }
                 catch (Exception ex)
@@ -565,14 +576,13 @@ namespace OnlineShop.Controllers
         [HttpPut("VerifyForgetPwd")]
         public string PutMemberPwd([FromBody] PutPwdDto value)
         {
+            string putMemberPwdErrorStr = "";//記錄錯誤訊息
+
             //查詢伺服器狀態是否正常
             if (ModelState.IsValid == false)
             {
-                /*****/
                 return "輸入參數有誤";
             }
-
-            string putMemberPwdErrorStr = "";//記錄錯誤訊息
 
             //帳號資料驗證
             if (value.Account == "" || (string.IsNullOrEmpty(value.Account)))
@@ -613,7 +623,6 @@ namespace OnlineShop.Controllers
                 }
             }
 
-
             //驗證碼資料驗證
             if (value.Code == "")
             {
@@ -625,17 +634,6 @@ namespace OnlineShop.Controllers
                 {
                     putMemberPwdErrorStr += "【 🔑驗證碼只能為數字 】\n";
                 }
-            }
-
-            if (value.Code != InCode.dic[value.Account].KeyCode)
-            {
-                putMemberPwdErrorStr += "【 🔑驗證碼錯誤 】\n";
-            }
-            else if (InCode.dic[value.Account].ValidTime < DateTime.Now)
-            {
-                putMemberPwdErrorStr += "【 🔑驗證碼失效 】\n";
-
-                InCode.dic.TryRemove(value.Account, out _);
             }
 
             //錯誤訊息不為空
@@ -664,7 +662,6 @@ namespace OnlineShop.Controllers
                     putMemberPwdErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
                     int SQLReturnCode = int.Parse(putMemberPwdErrorStr);
 
-
                     switch (SQLReturnCode)
                     {
                         case (int)putMemberPwdErrorCode.confirmError:
@@ -674,8 +671,21 @@ namespace OnlineShop.Controllers
                             return "此帳號不存在";
 
                         case (int)putMemberPwdErrorCode.PutOK:
-                            InCode.dic.TryRemove(value.Account, out _);
-                            return "密碼修改成功";
+
+                            if (value.Code != InCode.dic[value.Account].KeyCode)
+                            {
+                                return "【 🔑驗證碼錯誤 】";
+                            }
+                            else if (InCode.dic[value.Account].ValidTime < DateTime.Now)
+                            {
+                                InCode.dic.TryRemove(value.Account, out _);
+                                return "【 🔑驗證碼失效 】";
+                            }
+                            else
+                            {
+                                InCode.dic.TryRemove(value.Account, out _);
+                                return "密碼修改成功";
+                            }
 
                         default:
                             return "失敗";

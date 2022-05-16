@@ -117,9 +117,7 @@ namespace OnlineShop.Controllers
 
                         //Session傳遞
                         HttpContext.Session.SetString("Account", value.Account);
-                        //HttpContext.Session.SetString("AccPosition", dt.Rows[0]["f_accPosition"].ToString());
-
-
+                        HttpContext.Session.SetString("MemberID", cmd.ExecuteScalar().ToString());
 
                         //資料庫中 Account為空 or 存的sessionId與現在的不符
                         if (!string.IsNullOrWhiteSpace(dt.Rows[0]["f_sessionId"].ToString()) &&
@@ -161,27 +159,6 @@ namespace OnlineShop.Controllers
 
                             return "登入成功";
                         }
-
-                        ////添加角色權限
-                        //var claims = new List<Claim>
-                        //{
-                        //   new Claim(ClaimTypes.Name, value.Account), //存使用者名稱,
-                        //};
-
-                        //HttpContext.Session.SetString("SessionID", dt.Rows[0]["f_id"].ToString());
-
-                        //var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                        //HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
-
-                        ////判斷是否重複登入
-                        //if (User.Identity.IsAuthenticated)
-                        //{
-                        //    return "請先登出再進行登入";
-                        //}
-                        //else
-                        //{
-                        //    return "登入成功";
-                        //}
                     }
                 }
                 catch (Exception ex)

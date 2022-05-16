@@ -46,7 +46,6 @@ namespace OnlineShop.Pages.Member
 
             //êPé]ßB¾€
             cmd.Connection.Close();
-
         }
     }
 }

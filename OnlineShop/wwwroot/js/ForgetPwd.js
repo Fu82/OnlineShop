@@ -14,8 +14,9 @@
                     "Account": $("#txtAccount").val()
                 }),
                 success: function (result) {
-                    if (String.prototype.indexOf("帳號正確  ")) {
-                        location.href = "/Member/VerifyMember";
+                    if (result.indexOf("帳號正確") >= 0) {
+                        alert(result);
+                        location.href = "/Member/VerifyForgetPwd";
                     } else {
                         alert(result);
                     }
@@ -25,5 +26,10 @@
                 }
             });
         }
+    });
+
+    $('#goBack').click(function (e) {
+        e.preventDefault();
+        history.go(-1);
     });
 });

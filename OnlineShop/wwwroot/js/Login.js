@@ -36,7 +36,7 @@
                         }
                     }
                     else {
-                        alert("123");
+                        alert("登入失敗");
                     }
                 },
                 error: function (error) {
