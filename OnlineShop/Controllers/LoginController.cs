@@ -18,7 +18,6 @@ namespace OnlineShop.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [AllowAnonymous]
     public class LoginController : ControllerBase
     {
         private readonly OnlineShopContext _OnlineShopContext;

@@ -16,7 +16,6 @@ namespace OnlineShop.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [AllowAnonymous]
     public class MemberController : ControllerBase
     {
 
@@ -421,7 +420,7 @@ namespace OnlineShop.Controllers
 
         //編輯資料
         [HttpPut("PutMember")]
-        public string PutAcc([FromQuery] int id, [FromBody] MemberSelectDto value)
+        public string PutMember([FromQuery] int id, [FromBody] MemberSelectDto value)
         {
             //登入&身分檢查
             if (!loginValidate())
@@ -487,7 +486,7 @@ namespace OnlineShop.Controllers
 
         //忘記密碼
         [HttpPost("PostForgetPwd")]
-        public string PostMemberPwd([FromBody] MemberSelectDto value)
+        public string PostForgetPwd([FromBody] MemberSelectDto value)
         {
             string postMemberPwdErrorStr = "";//記錄錯誤訊息
 
@@ -574,7 +573,7 @@ namespace OnlineShop.Controllers
 
         //驗證新密碼
         [HttpPut("VerifyForgetPwd")]
-        public string PutMemberPwd([FromBody] PutPwdDto value)
+        public string VerifyForgetPwd([FromBody] PutPwdDto value)
         {
             string putMemberPwdErrorStr = "";//記錄錯誤訊息
 
