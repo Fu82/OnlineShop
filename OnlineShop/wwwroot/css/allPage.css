@@ -79,13 +79,13 @@ ul {
     transition: background-color 0.15s ease-in-out;
 }
 
-.siteLoop {
+.prodSite {
     margin-top: 30px;
     text-align: center;
     padding: 0px 5px 0px 5px;
 }
 
-.siteLoop > dd {
+.prodSite > div {
     position: relative;
     width: 270px;
     height: 370px;
@@ -94,7 +94,7 @@ ul {
     background: #ccc; /*測試 需拔除*/
 }
 
-.siteLoop .prodImg {
+.prodSite .prodImg {
     width: 200px;
     height: 200px;
 }
@@ -107,47 +107,47 @@ ul {
     overflow: hidden;
 }
 
-.siteLoop img{
+.prodSite img {
     max-height: 200px;
 }
 
-.prodInfo {
+.prodName {
     margin: 0 6px;
 }
 
-.siteLoop .nick {
+.prodSite .prodNick {
     margin: 12px 0;
     height: 32px;
 }
 
-.nick {
+.prodNick {
     overflow: hidden;
     word-break: break-all;
 }
 
-.siteLoop .nick a {
+.prodSite .prodNick a {
     color: #222;
     font: bold 13px/1.3 Arial,Verdana,'Yu Gothic','MS Gothic','Microsoft JhengHei',Helvetica,sans-serif;
 }
 
-.extra {
+.prodExtra {
     display: block;
 }
 
-.siteLoop .priceBox {
+.prodSite .prodPrice {
     margin: 8px auto;
     font: 12px/1.5 Verdana,Arial,Helvetica;
 }
 
-.site_loop .price {
+.prodSite .prodDollar {
     color: #d00;
 }
 
-.pricepriceDollar {
+.prodDollar {
     font: bold 12px/1.2 Verdana,Arial,Helvetica;
 }
 
-.priceValue {
+.prodValue {
     font: bold 19px/1 Arial,Verdana,'Microsoft JhengHei',Helvetica,sans-serif;
 }
 

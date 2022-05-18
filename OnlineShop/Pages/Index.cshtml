@@ -3,28 +3,55 @@
 @{
 }
 
-<div style=" background: cadetblue;">
-    <ul class="siteRoadsign">
-        <li>
-            <a>3C</a>
-        </li>
-        <li>
-            <a>周邊</a>
-        </li>
-        <li>
-            <a>軟體</a>
-        </li>
-    </ul>
-</div>
+<div style="height: 120em;">
+    <div style=" background: cadetblue;">
+        <ul class="siteRoadsign">
+            <li>
+                <a>3C</a>
+            </li>
+            <li>
+                <a>周邊</a>
+            </li>
+            <li>
+                <a>軟體</a>
+            </li>
+        </ul>
+    </div>
 
-<div style=" background: cadetblue; height: 70px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-    <input id="keyword" type="text" class="acSearch" placeholder="輸入你想找的商品" autocomplete="off" />
-    <button id="btnSearch" type="button" class="btnSearch">搜尋</button>
-</div>
+    <div style=" background: cadetblue; height: 70px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
+        @*<input id="Search" type="text" class="acSearch" placeholder="輸入你想找的商品" autocomplete="off" />
+        <button id="btnSearch" type="button" class="btnSearch">搜尋</button>*@
+        <input id="Search" oninput="ProdMenufun.ProdListSearch()" />
+    </div>
 
-<div>
-    <dl id="dlBody" class="siteLoop">
-    </dl>
+    <div>
+        @*<div class="prodBody">
+            <div>
+                <a class="prodImg"><img /></a>
+                <div class="prodName">
+                    <h5 class="prodNick">
+                        <a>
+                            <span class="prodExtra">123321</span>
+                        </a>
+                    </h5>
+                </div>
+                <div class="prodPrice">
+                    <span class="prodDollar">$<span class="prodValue">123321</span></span>
+                </div>
+                <div class="prodJoin">
+                    <input type="Button" value="加入購物車" />
+                    <input type="Button" value="加入喜好" />
+                </div>
+            </div>
+        </div>*@
+        <div id="prodBody" class="prodSite">
+        </div>
+    </div>
 </div>
 
 <script src="~/js/Index.js"></script>
+
+<script id="getSelect">
+    var ProdJson = "";
+    $("#getSelect").remove(); 
+</script>

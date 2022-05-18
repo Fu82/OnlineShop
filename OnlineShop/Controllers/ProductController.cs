@@ -28,7 +28,6 @@ namespace OnlineShop.Controllers
             SqlCommand cmd = null;
             DataTable dt = new DataTable();
             SqlDataAdapter da = new SqlDataAdapter();
-            DataSet ds = new DataSet();
             try
             {
                 // 資料庫連線&SQL指令
@@ -40,7 +39,6 @@ namespace OnlineShop.Controllers
                 cmd.Connection.Open();
                 da.SelectCommand = cmd;
                 da.Fill(dt);
-                da.Fill(ds);
             }
             catch (Exception ex)
             {
@@ -62,24 +60,7 @@ namespace OnlineShop.Controllers
             return result;
         }
 
-
         //商品類別相關------------------------
         //新增商品類別 
-
-
-        //登入檢查
-        private bool loginValidate()
-        {
-            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("Account")) ||                        //判斷Session[Account]是否為空
-                SessionDB.sessionDB[HttpContext.Session.GetString("Account")].SId != HttpContext.Session.Id ||//判斷DB SessionId與瀏覽器 SessionId是否一樣
-                SessionDB.sessionDB[HttpContext.Session.GetString("Account")].ValidTime < DateTime.Now)       //判斷是否過期
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-        }
     }
 }
