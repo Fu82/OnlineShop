@@ -37,3 +37,120 @@
 .wordRight {
     flex: auto;
 }
+
+ul {
+    list-style: none;
+}
+
+.acSearch {
+    border: none;
+    border-radius: 2px;
+    background-color: #fff;
+    padding: 13px 8px;
+    margin: 20px;
+    width: 300px;
+    height: 44px;
+    color: #333;
+    font-size: 16px;
+}
+
+.btnSearch {
+    border-radius: 5px;
+    background-color: #fff;
+    margin-left: 330px;
+    width: 48px;
+    height: 48px;
+    position: absolute;
+}
+
+.siteRoadsign {
+    display: flex;
+    width: 972px;
+    position: relative;
+}
+
+.siteRoadsign a {
+    padding: 8px 16px;
+    display: block;
+    font-size: 16px;
+    line-height: 1.25;
+    position: relative;
+    z-index: 2;
+    transition: background-color 0.15s ease-in-out;
+}
+
+.siteLoop {
+    margin-top: 30px;
+    text-align: center;
+    padding: 0px 5px 0px 5px;
+}
+
+.siteLoop > dd {
+    position: relative;
+    width: 270px;
+    height: 370px;
+    float: left;
+    padding: 20px 19px 0px 19px;
+    background: #ccc; /*測試 需拔除*/
+}
+
+.siteLoop .prodImg {
+    width: 200px;
+    height: 200px;
+}
+
+.prodImg {
+    display: block;
+    margin: 0 auto;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.siteLoop img{
+    max-height: 200px;
+}
+
+.prodInfo {
+    margin: 0 6px;
+}
+
+.siteLoop .nick {
+    margin: 12px 0;
+    height: 32px;
+}
+
+.nick {
+    overflow: hidden;
+    word-break: break-all;
+}
+
+.siteLoop .nick a {
+    color: #222;
+    font: bold 13px/1.3 Arial,Verdana,'Yu Gothic','MS Gothic','Microsoft JhengHei',Helvetica,sans-serif;
+}
+
+.extra {
+    display: block;
+}
+
+.siteLoop .priceBox {
+    margin: 8px auto;
+    font: 12px/1.5 Verdana,Arial,Helvetica;
+}
+
+.site_loop .price {
+    color: #d00;
+}
+
+.pricepriceDollar {
+    font: bold 12px/1.2 Verdana,Arial,Helvetica;
+}
+
+.priceValue {
+    font: bold 19px/1 Arial,Verdana,'Microsoft JhengHei',Helvetica,sans-serif;
+}
+
+.prodJoin {
+    margin: 15px auto;
+}

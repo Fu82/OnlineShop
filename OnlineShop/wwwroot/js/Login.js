@@ -28,7 +28,7 @@
                 }),
                 success: function (result) {
                     if (result == "登入成功") {
-                        location.href = "/Index";
+                        location.href = "/IndexBack";
                     }
                     else if (result === "重複登入") {
                         if (window.confirm("有使用者正在連線,要繼續登入嗎?")) {

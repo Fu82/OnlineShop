@@ -1,9 +1,30 @@
 ﻿@page
-@model OnlineShop.Pages.indexModel
+@model IndexModel
 @{
-    ViewData["Title"] = "首頁";
 }
 
-<div id="body" style="margin: 0 auto;">
-    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+<div style=" background: cadetblue;">
+    <ul class="siteRoadsign">
+        <li>
+            <a>3C</a>
+        </li>
+        <li>
+            <a>周邊</a>
+        </li>
+        <li>
+            <a>軟體</a>
+        </li>
+    </ul>
 </div>
+
+<div style=" background: cadetblue; height: 70px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
+    <input id="keyword" type="text" class="acSearch" placeholder="輸入你想找的商品" autocomplete="off" />
+    <button id="btnSearch" type="button" class="btnSearch">搜尋</button>
+</div>
+
+<div>
+    <dl id="dlBody" class="siteLoop">
+    </dl>
+</div>
+
+<script src="~/js/Index.js"></script>
