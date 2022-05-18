@@ -1,5 +1,5 @@
-﻿///TODO 功能描述 不必要的using
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +9,10 @@ using MyNet5ApiAdoTest.Services;
 using OnlineShop.Models;
 using OnlineShop.Tool;
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Data;
+using System.Security.Claims;
 
 namespace OnlineShop.Controllers
 {
@@ -37,13 +40,11 @@ namespace OnlineShop.Controllers
                 return "輸入參數有誤";
             }
 
-            ///TODO 無效驗證
             if (User.Identity.IsAuthenticated)
             {
                 return "請先登出再進行登入";
             }
 
-            ///TODO 多重驗證失敗
             string loginErrorStr = "";//記錄錯誤訊息
 
             //帳號資料驗證
@@ -105,7 +106,6 @@ namespace OnlineShop.Controllers
                     //開啟連線
                     cmd.Connection.Open();
 
-                    ///TODO
                     if (cmd.ExecuteScalar() == null)
                     {
                         return "登入失敗"; //登入失敗
@@ -117,14 +117,12 @@ namespace OnlineShop.Controllers
 
                         //Session傳遞
                         HttpContext.Session.SetString("Account", value.Account);
-                        ///TODO 重複執行SP
                         HttpContext.Session.SetString("MemberID", cmd.ExecuteScalar().ToString());
 
                         //資料庫中 Account為空 or 存的sessionId與現在的不符
                         if (!string.IsNullOrWhiteSpace(dt.Rows[0]["f_sessionId"].ToString()) &&
                             dt.Rows[0]["f_sessionId"].ToString() != HttpContext.Session.Id)
                         {
-                            ///TODO Close或Dispose
                             cmd.Parameters.Clear();
                             cmd.CommandText = @"UPDATE t_member WITH(ROWLOCK) SET f_sessionId = @sessionId WHERE f_acc = @f_acc
                                                 SELECT f_sessionId FROM t_member WHERE f_acc = @f_acc ";
@@ -246,7 +244,7 @@ namespace OnlineShop.Controllers
             }
 
             //清空Dictionary & Session[Account]中的值
-            ///TODO 不需要多清空
+
             SessionDB.sessionDB.TryRemove(HttpContext.Session.GetString("Account"), out _);
             HttpContext.Session.Clear();
         }

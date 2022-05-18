@@ -1,5 +1,4 @@
-﻿///TODO 功能描述 不必要的using
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
@@ -120,7 +119,6 @@ namespace OnlineShop.Controllers
             //後端驗證
             //如字串字數特殊字元驗證
 
-            ///TODO 多重驗證失敗
             string addMemberErrorStr = ""; //記錄錯誤訊息
 
             //帳號資料驗證
@@ -214,6 +212,11 @@ namespace OnlineShop.Controllers
                 addMemberErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
                 int SQLReturnCode = int.Parse(addMemberErrorStr);
 
+                InCode.TimeCode timeCode = new InCode.TimeCode();
+                timeCode.KeyCode = InCode.VerifyKey();
+                timeCode.ValidTime = DateTime.Now.AddMinutes(10);
+
+                InCode.dic.TryAdd(value.Account, timeCode);
 
                 switch (SQLReturnCode)
                 {
@@ -221,12 +224,6 @@ namespace OnlineShop.Controllers
                         return "此帳號已存在";
 
                     case (int)addACCountErrorCode.AddOK:
-                        ///TODO 成功再做
-                        InCode.TimeCode timeCode = new InCode.TimeCode();
-                        timeCode.KeyCode = InCode.VerifyKey();
-                        timeCode.ValidTime = DateTime.Now.AddMinutes(10);
-
-                        InCode.dic.TryAdd(value.Account, timeCode);
                         return "帳號新增成功  " + "驗證碼： " + InCode.dic[value.Account].KeyCode;
 
                     default:
@@ -263,7 +260,6 @@ namespace OnlineShop.Controllers
             }
 
             //帳號資料驗證
-            ///TODO 寫法統一 IsNullOrEmpty
             if (value.Account == "" || (string.IsNullOrEmpty(value.Account)))
             {
                 AuthMemberErrorStr += "【 🚫帳號不可為空 】\n";
@@ -317,7 +313,6 @@ namespace OnlineShop.Controllers
             }
             else
             {
-                ///TODO 進庫前 應該先驗證過一次dic
                 SqlCommand cmd = null;
                 //DataTable dt = new DataTable();
                 try
@@ -669,7 +664,6 @@ namespace OnlineShop.Controllers
 
                     switch (SQLReturnCode)
                     {
-                        ///TODO 不該進庫判斷
                         case (int)putMemberPwdErrorCode.confirmError:
                             return "新密碼與確認新密碼不相同";
 
