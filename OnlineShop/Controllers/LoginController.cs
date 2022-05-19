@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
@@ -9,10 +7,7 @@ using MyNet5ApiAdoTest.Services;
 using OnlineShop.Models;
 using OnlineShop.Tool;
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Data;
-using System.Security.Claims;
 
 namespace OnlineShop.Controllers
 {

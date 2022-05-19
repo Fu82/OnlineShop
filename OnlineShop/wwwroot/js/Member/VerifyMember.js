@@ -25,7 +25,7 @@
                 data: JSON.stringify({
                     "Account": $("#txtAccount").val(),
                     "Pwd": $("#passWord").val(),
-                    "Code":  $("#txtCode").val()
+                    "Code": $("#txtCode").val()
                 }),
                 success: function (result) {
                     if (result == "驗證成功") {

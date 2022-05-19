@@ -5,7 +5,7 @@ namespace OnlineShop.Tool
 {
     public class SessionDB
     {
-        public static ConcurrentDictionary<string, SessionInfo> sessionDB = new ConcurrentDictionary<string, SessionInfo>();//Modi@ Dictionary -> ConcurrentDictionary
+        public static ConcurrentDictionary<string, SessionInfo> sessionDB = new ConcurrentDictionary<string, SessionInfo>();
 
         public class SessionInfo
         {

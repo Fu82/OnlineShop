@@ -1,22 +1,18 @@
 ﻿$(document).ready(function (data) {
     $("#btnPost").click(function () {
-        if ($("#txtAccount").val() == "" && $("#passWord").val() == "")
-        {
+        if ($("#txtAccount").val() == "" && $("#passWord").val() == "") {
             alert("帳號密碼必填");
         }
 
-        else if ($("#txtAccount").val() == "")
-        {
+        else if ($("#txtAccount").val() == "") {
             alert("帳號必填");
         }
 
-        else if ($("#passWord").val() == "")
-        {
+        else if ($("#passWord").val() == "") {
             alert("密碼必填");
         }
 
-        else
-        {
+        else {
             $.ajax({
                 url: "/api/Login",
                 type: "post",

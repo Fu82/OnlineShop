@@ -15,8 +15,7 @@
         else if ($("#txtMail").val() == "") {
             alert("信箱必填");
         }
-        else
-        {
+        else {
             $.ajax({
                 url: "/api/Member/AddAcc",
                 type: "post",
