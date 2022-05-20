@@ -15,6 +15,7 @@
         transition: background-color 0.15s ease-in-out;
     }
 
+/*商品查詢*/
 .SearchBox {
     background: cadetblue;
     height: 70px;
@@ -57,6 +58,7 @@
     font-size: 16px;
 }
 
+/*商品清單*/
 .prodSite {
     margin-top: 30px;
     text-align: center;
@@ -78,12 +80,15 @@
     }
 
 .prodImg {
-    display: block;
-    margin: 0 auto;
-    text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
 }
+
+    .prodImg a {
+        display: block;
+        margin: 0 auto;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+    }
 
 .prodSite img {
     max-height: 200px;
@@ -119,9 +124,6 @@
 
 .prodSite .prodDollar {
     color: #d00;
-}
-
-.prodDollar {
     font: bold 12px/1.2 Verdana,Arial,Helvetica;
 }
 
@@ -133,6 +135,16 @@
     margin: 15px auto;
 }
 
-.ListSwitch{
+/*商品內頁*/
+.prodInside {
+    border: solid 2px;
+    padding: 5px;
+    display: none;
+    position: relative;
+    z-index: 99;
+    background: #ccc;
+}
+
+.ListSwitch {
     display: none;
 }
