@@ -1,6 +1,7 @@
 ﻿.siteRoadsign {
     display: flex;
     width: 972px;
+    margin-bottom: 16px;
     position: relative;
 }
 
@@ -12,6 +13,20 @@
         line-height: 1.25;
         position: relative;
         z-index: 2;
+        transition: background-color 0.15s ease-in-out;
+    }
+
+.siteCategory {
+    background: papayawhip;
+    display: none;
+}
+
+    .siteCategory li {
+        display: block;
+        padding: 8px;
+        color: #666;
+        line-height: 1.25;
+        text-decoration: none;
         transition: background-color 0.15s ease-in-out;
     }
 

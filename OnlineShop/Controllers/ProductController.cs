@@ -2,6 +2,7 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using MyNet5ApiAdoTest.Services;
+using OnlineShop.Tool;
 using System;
 using System.Data;
 
@@ -56,6 +57,47 @@ namespace OnlineShop.Controllers
         }
 
         //商品類別相關------------------------
-        //新增商品類別 
+        //取得類別
+        [HttpGet("GetCategory")]
+        public string GetCategory()
+        {
+            SqlCommand cmd = null;
+            DataTable dt = new DataTable();
+            SqlDataAdapter da = new SqlDataAdapter();
+            DataSet ds = new DataSet();
+            try
+            {
+                // 資料庫連線&SQL指令
+                cmd = new SqlCommand();
+                cmd.Connection = new SqlConnection(SQLConnectionString);
+                cmd.CommandText = @" EXEC pro_onlineShop_getProductCategory ";
+
+                //開啟連線
+                cmd.Connection.Open();
+                da.SelectCommand = cmd;
+                da.Fill(dt);
+
+                da.Fill(ds);
+
+
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
+            finally
+            {
+                //關閉連線
+                if (cmd != null)
+                {
+                    cmd.Parameters.Clear();
+                    cmd.Connection.Close();
+                }
+            }
+            //DataTable轉Json;
+            var result = InTool.DataTableJson(dt);
+
+            return result;
+        }
     }
 }

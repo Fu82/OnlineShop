@@ -6,39 +6,25 @@
 
 <!-- 商品類型 -->
 <div style=" background: cadetblue;">
-    <ul class="siteRoadsign">
+    <div class="siteRoadsign" id="Category">
+        <a value="10" id="Category10">3C</a>
+        <a value="20" id="Category20">周邊</a>
+        <a value="30" id="Category30">軟體</a>
+    </div>
+    <div>
+        <ul id="SubCategory" class="siteCategory">
+        </ul>
+    </div>
+    @*<ul class="siteRoadsign">
         <li>
-            <a id="one">3c</a>
-            <div id="two" style="display:none">
+            <a value="10">3C</a>
+            <div>
                 <ul>
                     <li>手機</li>
-                    <li>筆電</li>
-                    <li>顯示卡</li>
                 </ul>
             </div>
         </li>
-        @*<li>
-                <a>周邊</a>
-                <div>
-                    <ul>
-                        <li>滑鼠</li>
-                        <li>鍵盤</li>
-                        <li>螢幕</li>
-                        <li>線材</li>
-                    </ul>
-                </div>
-            </li>
-            <li>
-                <a>軟體</a>
-                <div>
-                    <ul>
-                        <li>電玩</li>
-                        <li>辦公</li>
-                        <li>其他</li>
-                    </ul>
-                </div>
-            </li>*@
-    </ul>
+    </ul>*@
 </div>
 
 <!-- 商品查詢 -->
@@ -126,11 +112,3 @@
     var ProdJson = "";
     $("#getSelect").remove();
 </script>
-
-@*<script type="text/javascript">
-    function nofind() {
-        var img = event.srcElement;
-        img.src = "images/product/noImg.png";
-        img.onerror = null;
-    }
-</script>*@

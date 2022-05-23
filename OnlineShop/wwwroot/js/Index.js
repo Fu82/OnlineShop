@@ -1,4 +1,35 @@
 ﻿$(document).ready(function () {
+    //取得類型列表
+    $.ajax({
+        type: "GET",
+        url: "/api/Product/GetCategory",
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (data) {
+
+            Category10 = AddProductFun.MakeBoxHtml(data.filter(function (item) {
+                if (item["f_categoryNum"].indexOf(10) >= 0) {
+                    return item
+                }
+            }));
+            Category20 = AddProductFun.MakeBoxHtml(data.filter(function (item) {
+                if (item["f_categoryNum"].indexOf(20) >= 0) {
+                    return item
+                }
+            }));
+            Category30 = AddProductFun.MakeBoxHtml(data.filter(function (item) {
+                if (item["f_categoryNum"].indexOf(30) >= 0) {
+                    return item
+                }
+            }));
+        },
+        failure: function (data) {
+            alert(data);
+        },
+        error: function (data) {
+            alert(data);
+        }
+    });
     //商品清單
     $.ajax({
         type: "GET",
@@ -12,7 +43,7 @@
             /*var imgTag = ""*/
             for (var i in data) {
                 rows += "<div>" +
-                    "<a class='prodImg'>" + "<img id='join' src='" + data[i].f_img + "' onerror='nofind()' />" + "</a>" + 
+                    "<a class='prodImg'>" + "<img id='join' src='" + data[i].f_img + "' onerror='noImg()' />" + "</a>" + 
                     "<div class='prodName'>" +
                     "<h5 class='prodNick'>" + "<a>" +
                     "<span class='prodExtra'>" + data[i].f_name + "</span>" +
@@ -35,7 +66,6 @@
         error: function (data) {
         }
     });
-
     //組合商品內頁
     $("#prodBody").on('click', '#join', function () {
         var ProdRow = $(this).closest("div");
@@ -71,15 +101,15 @@
         }
     });
 
-    $("#one").click(function () {
-        $("#two").toggle();
+    $("#Category10").click(function () {
+        $('#SubCategory').html(Category10).toggle();
     });
-
-    function nofind() {
-        var img = event.srcElement;
-        img.src = "images/product/noImg.png";
-        img.onerror = null;
-    }
+    $("#Category20").click(function () {
+        $('#SubCategory').html(Category20).toggle();
+    });
+    $("#Category30").click(function () {
+        $('#SubCategory').html(Category30).toggle();
+    });
 })
 
 //返回
@@ -92,6 +122,13 @@ function InsideCancel_Click() {
     }
 }
 
+//圖片不存在
+function noImg() {
+    var img = event.srcElement;
+    img.src = "images/product/noImg.png";
+    img.onerror = null;
+}
+
 var ProdMenufun = {
     //清單重組
     DrawProductList: function (prodArray) {
@@ -99,7 +136,7 @@ var ProdMenufun = {
 
         for (var i = 0; i < prodArray.length; i++) {
             htmlText += "<div>" +
-                "<a class='prodImg'>" + "<img id='join' src='" + prodArray[i].f_img + "' onerror='nofind()' />" + "</a>" +
+                "<a class='prodImg'>" + "<img id='join' src='" + prodArray[i].f_img + "' onerror='noImg()' />" + "</a>" +
                 "<div class='prodName'>" +
                 "<h5 class='prodNick'>" + "<a>" +
                 "<span class='prodExtra'>" + prodArray[i].f_name + "</span>" +
@@ -183,4 +220,62 @@ var ProdMenufun = {
 
         }
     }
+};
+
+var AddProductFun = {
+    //清單重組
+    TopProductList: function (prodArray) {
+        var htmlText = "";
+
+        for (var i = 0; i < prodArray.length; i++) {
+            htmlText += "<div>" +
+                "<a class='prodImg'>" + "<img id='join' src='" + prodArray[i].f_img + "' onerror='noImg()' />" + "</a>" +
+                "<div class='prodName'>" +
+                "<h5 class='prodNick'>" + "<a>" +
+                "<span class='prodExtra'>" + prodArray[i].f_name + "</span>" +
+                "</a>" + "</h5>" + "</div>" +
+                "<div class='prodPrice prodDollar'>" +
+                "$" + "<span class='prodValue'>" + prodArray[i].f_price + "</span>" +
+                "</div>" +
+                "<div style='display:none'>" + prodArray[i].f_content + "</div>" + //商品內容隱藏
+                "<div class='prodJoin'>" +
+                "<input type='Button' value='加入購物車' />" +
+                "<input type='Button' value='加入喜好' />" +
+                "</div>" +
+                "</div>";
+        }
+
+        $('#prodBody').html(htmlText);
+    },
+    //組子類別標籤
+    MakeBoxHtml: function (CategoryJson) {
+        var Rows = '';
+        for (var i = 0; i < CategoryJson.length; i++) {
+            Rows += "<li role='" + CategoryJson[i].f_categoryNum + "' value='" + CategoryJson[i].f_subCategoryNum + "' onclick='AddProductFun.TopProdList()'>" + CategoryJson[i].f_subCategoryName + "</li>";
+        }
+        return Rows
+    },
+    //
+    TopProdList: function TopProdList() {
+        var va = $(this).attr('value');
+        return role;
+
+        //extend  深複製暫存檔來操作;
+        var tempTable = $.extend(true, [], ProdJson);
+
+        return tempTable;
+
+        //組HTML標籤
+        /*AddProductFun.TopProdList(tempTable);*/
+
+    }
+
+
+    //map深複製 第一名
+    //var array = [1, 2, 3, 4, 5];
+    //var array_2 = array.map(function (item) {
+    //    return { a: item, b: item.toString() };
+    //});
+    //var tempTable = $.extend(true, [], CategoryJson);//複製到暫存 //第二名
+    //var tempTable = $.assign([], CategoryJson);//assign深複製  第三名
 };
