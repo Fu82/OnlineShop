@@ -163,3 +163,11 @@
 .ListSwitch {
     display: none;
 }
+
+.InsidePrice {
+    display: inline-block;
+    height: 40px;
+    font: bold 30px/30px Century Gothic,sans-serif;
+    margin: 0px 3px;
+    color: #d62872;
+}

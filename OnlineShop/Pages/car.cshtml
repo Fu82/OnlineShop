@@ -1,0 +1,28 @@
+﻿@page
+@model OnlineShop.Pages.carModel
+@{
+}
+
+<div>
+    <ul></ul>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/js-cookie@beta/dist/js.cookie.min.js"></script>
+<script>
+    //若 Cookies 中沒有 carItem 這個 key ，提醒使用者快去買東西!!
+    if (Cookies.get("carItem") == undefined) {
+        let element = document.createElement("p");
+        element.innerText = "購物車內沒有物品喔!趕快去選購"
+        document.querySelector("ul").appendChild(element);
+    }
+    else {
+        //藉由split方法將逗號切開來，即可把品項一個一個列出來
+        let items = Cookies.get("carItem");
+        items = items.split(",");
+        for (let item of items) {
+            let element = document.createElement("li");
+            element.innerText = item;
+            document.querySelector("ul").appendChild(element);
+        }
+    }
+</script>

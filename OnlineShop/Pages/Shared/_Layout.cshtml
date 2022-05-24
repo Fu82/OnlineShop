@@ -15,7 +15,7 @@
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
                 @{ if (!string.IsNullOrWhiteSpace(Accessor.HttpContext.Session.GetString("Account")) &&
-                              SessionDB.sessionDB[Accessor.HttpContext.Session.GetString("Account")].SId == Accessor.HttpContext.Session.Id)
+                               SessionDB.sessionDB[Accessor.HttpContext.Session.GetString("Account")].SId == Accessor.HttpContext.Session.Id)
                     {
                         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                                 aria-expanded="false" aria-label="Toggle navigation">
@@ -52,16 +52,19 @@
                                 <li class="nav-item">
                                     <a class="nav-link text-dark" asp-area="" asp-page="/Member/AddMember">註冊</a>
                                 </li>
-                                <li class="nav-item">
+                                <li class="nav-item wordRight">
                                     <a class="nav-link text-dark" asp-area="" asp-page="/Login">登入</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-page="/car">查看購物車</a>
                                 </li>
                             </ul>
                         </div>
                     }
                 }
             </div>
-            </nav>
-        </header>
+        </nav>
+    </header>
     <div class="container">
         @RenderBody()
     </div>

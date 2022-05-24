@@ -7,17 +7,17 @@
         dataType: "json",
         success: function (data) {
 
-            Category10 = AddProductFun.MakeBoxHtml(data.filter(function (item) {
+            Category10 = TopProdListFun.MakeBoxHtml(data.filter(function (item) {
                 if (item["f_categoryNum"].indexOf(10) >= 0) {
                     return item
                 }
             }));
-            Category20 = AddProductFun.MakeBoxHtml(data.filter(function (item) {
+            Category20 = TopProdListFun.MakeBoxHtml(data.filter(function (item) {
                 if (item["f_categoryNum"].indexOf(20) >= 0) {
                     return item
                 }
             }));
-            Category30 = AddProductFun.MakeBoxHtml(data.filter(function (item) {
+            Category30 = TopProdListFun.MakeBoxHtml(data.filter(function (item) {
                 if (item["f_categoryNum"].indexOf(30) >= 0) {
                     return item
                 }
@@ -53,7 +53,7 @@
                     "</div>" +
                     "<div style='display:none'>" + data[i].f_content + "</div>" + //商品內容隱藏
                     "<div class='prodJoin'>" +
-                    "<input type='Button' value='加入購物車' />" +
+                    "<input type='Button' id='" + data[i].f_name +"' onclick='addCarfun.addToCar(this.id)' value='加入購物車' />" +
                     "<input type='Button' value='加入喜好' />" +
                     "</div>" +
                     "</div>";
@@ -79,14 +79,14 @@
             var InsideRow = "<div style='width: 100%;'>" +
                 "<div style='width: 35%;float: left;'>" + "<div>" + "<img style='width: 400px;' src='" + ProdImg +"'/>" + "</div>" + "</div>" +
                 "<div style='float: right;width: 55%;color: #666;height: 400px;margin: 50px;'>" +
-                "<div style='margin-bottom: 20px;'>" + "<h5>" +
+                "<div style='margin-bottom: 20px;'>" + "<h3>" +
                 "<span>" + ProdName + "</span>" +
-                "</h5>" + "</div>" +
+                "</h3>" + "</div>" +
                 "<div>" +
                 "<span>" + ProdContent + "</span>" +
                 "</div>" +
-                "<div>" + "$" +
-                "<span>" + ProdPrice + "</span>" +
+                "<div style='padding: 20px 0px;'>" + "價格" +
+                "<span class='InsidePrice'>" + ProdPrice + "</span>" + "元 " +
                 "</div>" + "</div>" +
                 "</div>" +
                 "<div>" +
@@ -122,6 +122,22 @@ function InsideCancel_Click() {
     }
 }
 
+var addCarfun = {
+    addToCar: function (item) {
+        if (Cookies.get("carItem") == undefined) {
+            //若目前沒有 carItem 這個 key 的 Cookie ，直接新增一個，並只對購物車頁面設定 Cookie
+            Cookies.set("carItem", item, { path: '/car' })
+        }
+        else {
+            //有的話就用逗號將品項做分隔再加入至 carItem 中
+            currentItem = Cookies.get("carItem");
+            currentItem = currentItem + "," + item;
+            Cookies.set("carItem", currentItem, { path: '/car' });
+        }
+        alert("已加入" + item + "購物車");
+    }
+};
+
 //圖片不存在
 function noImg() {
     var img = event.srcElement;
@@ -129,7 +145,8 @@ function noImg() {
     img.onerror = null;
 }
 
-var ProdMenufun = {
+//下拉與搜尋
+var ProdSearchfun = {
     //清單重組
     DrawProductList: function (prodArray) {
         var htmlText = "";
@@ -180,17 +197,17 @@ var ProdMenufun = {
 
         }
         //熱門
-        //else if (OrderClass == "4" || OrderClass == "5") {
-        //    tempTable.sort(function (a, b) {
-        //        return a["f_accPosition"].localeCompare(b["f_accPosition"], "zh-hant"); //升序
-        //    })
-        //    if (OrderClass == "5") {
-        //        tempTable.reverse();//降序
-        //    }
+        else if (SortSearch == "4" || SortSearch == "5") {
+            tempTable.sort(function (a, b) {
+                return a["f_popularity"] - b["f_popularity"] //升序
+            })
+            if (SortSearch == "5") {
+                tempTable.reverse(); //反序
+            }
 
-        //}
-        //組HTML標籤
-        ProdMenufun.DrawProductList(tempTable);
+        }
+        //組HTML,覆蓋
+        ProdSearchfun.DrawProductList(tempTable);
 
     },
     //搜尋
@@ -204,7 +221,7 @@ var ProdMenufun = {
 
         } else {
             //字串搜尋
-            var searchvalue = function (Search) {
+            var searchStr = function (Search) {
                 tempTable = tempTable.filter(function (item) { //filter搜尋json
                     if (item["f_name"].indexOf(Search) >= 0) { //indexOf -> 有找到所鍵入文字則回傳 >=0
                         return item //大於等於0則 return item
@@ -216,13 +233,14 @@ var ProdMenufun = {
             searchStr($("#Search").val());
 
             //組HTML,覆蓋
-            ProdMenufun.DrawProductList(tempTable);
+            ProdSearchfun.DrawProductList(tempTable);
 
         }
     }
 };
 
-var AddProductFun = {
+//商品類別
+var TopProdListFun = {
     //清單重組
     TopProductList: function (prodArray) {
         var htmlText = "";
@@ -251,22 +269,32 @@ var AddProductFun = {
     MakeBoxHtml: function (CategoryJson) {
         var Rows = '';
         for (var i = 0; i < CategoryJson.length; i++) {
-            Rows += "<li role='" + CategoryJson[i].f_categoryNum + "' value='" + CategoryJson[i].f_subCategoryNum + "' onclick='AddProductFun.TopProdList()'>" + CategoryJson[i].f_subCategoryName + "</li>";
+            Rows += "<li id='" + CategoryJson[i].f_categoryNum + "-" + CategoryJson[i].f_subCategoryNum + "' onclick='TopProdListFun.TopProdList(this.id)'>" + CategoryJson[i].f_subCategoryName + "</li>";
         }
         return Rows
     },
     //
-    TopProdList: function TopProdList() {
-        var va = $(this).attr('value');
-        return role;
-
+    TopProdList: function TopProdList(id) {
         //extend  深複製暫存檔來操作;
         var tempTable = $.extend(true, [], ProdJson);
+        var MainList = id.split('-')[0]; //主類別
+        var SubList = id.split('-')[1]; //子類別
 
-        return tempTable;
+        //主類別篩選
+        var MainResult = tempTable.filter(function (item) { //filter搜尋json
+            if (item["f_category"].indexOf(MainList) >= 0) { //indexOf -> 有找到所鍵入文字則回傳 >=0
+                return item //大於等於0則 return item
+            }
+        })
+        //子類別篩選
+        SubResult = MainResult.filter(function (item) { //filter搜尋json
+            if (item["f_subCategory"].indexOf(SubList) >= 0) { //indexOf -> 有找到所鍵入文字則回傳 >=0
+                return item //大於等於0則 return item
+            }
+        })
 
-        //組HTML標籤
-        /*AddProductFun.TopProdList(tempTable);*/
+        //組HTML,覆蓋
+        TopProdListFun.TopProductList(SubResult);
 
     }
 

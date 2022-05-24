@@ -16,28 +16,28 @@
         </ul>
     </div>
     @*<ul class="siteRoadsign">
-        <li>
-            <a value="10">3C</a>
-            <div>
-                <ul>
-                    <li>手機</li>
-                </ul>
-            </div>
-        </li>
-    </ul>*@
+            <li>
+                <a value="10">3C</a>
+                <div>
+                    <ul>
+                        <li>手機</li>
+                    </ul>
+                </div>
+            </li>
+        </ul>*@
 </div>
 
 <!-- 商品查詢 -->
 <div id="prodSearch" class="SearchBox">
-    <input id="Search" type="text" class="enterSearch" placeholder="輸入你想找的商品" oninput="ProdMenufun.ProdListSearch()" />
+    <input id="Search" type="text" class="enterSearch" placeholder="輸入你想找的商品" oninput="ProdSearchfun.ProdListSearch()" />
     @*<button id="btnSearch" type="button" class="btnSearch">搜尋</button>*@
-    <select id="SortSearch" class="dropDownSearch" onchange="ProdMenufun.ProdListSort(this.value)">
+    <select id="SortSearch" class="dropDownSearch" onchange="ProdSearchfun.ProdListSort(this.value)">
         <option value="0">名稱(簡->雜)</option>
         <option value="1">名稱(雜->簡)</option>
         <option value="2">價格(低->高)</option>
         <option value="3">價格(高->低)</option>
-        @*<option value="4">熱門(低->高)</option>
-            <option value="5">熱門(高->低)</option>*@
+        <option value="4">熱門(低->高)</option>
+        <option value="5">熱門(高->低)</option>
     </select>
 </div>
 
@@ -112,3 +112,4 @@
     var ProdJson = "";
     $("#getSelect").remove();
 </script>
+<script src="https://cdn.jsdelivr.net/npm/js-cookie@beta/dist/js.cookie.min.js"></script>
