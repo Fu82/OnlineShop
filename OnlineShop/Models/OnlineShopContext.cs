@@ -23,6 +23,7 @@ namespace OnlineShop.Models
         public virtual DbSet<TMember> TMember { get; set; }
         public virtual DbSet<TMyFavourite> TMyFavourite { get; set; }
         public virtual DbSet<TProduct> TProduct { get; set; }
+        public object Product { get; internal set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

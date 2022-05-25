@@ -15,7 +15,7 @@
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
                 @{ if (!string.IsNullOrWhiteSpace(Accessor.HttpContext.Session.GetString("Account")) &&
-                               SessionDB.sessionDB[Accessor.HttpContext.Session.GetString("Account")].SId == Accessor.HttpContext.Session.Id)
+                                SessionDB.sessionDB[Accessor.HttpContext.Session.GetString("Account")].SId == Accessor.HttpContext.Session.Id)
                     {
                         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                                 aria-expanded="false" aria-label="Toggle navigation">
@@ -75,6 +75,7 @@
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@beta/dist/js.cookie.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/LayOut.js"></script>

@@ -53,7 +53,8 @@
                     "</div>" +
                     "<div style='display:none'>" + data[i].f_content + "</div>" + //商品內容隱藏
                     "<div class='prodJoin'>" +
-                    "<input type='Button' id='" + data[i].f_name +"' onclick='addCarfun.addToCar(this.id)' value='加入購物車' />" +
+                    "<input type='Button' id='" + data[i].f_id + "' onclick='addCarfun.addToCar(this.id)' value='加入購物車' />" +
+                    "<input type='Button' onclick='delCarfun.delToCar()' value='移除購物車' />" +
                     "<input type='Button' value='加入喜好' />" +
                     "</div>" +
                     "</div>";
@@ -126,17 +127,29 @@ var addCarfun = {
     addToCar: function (item) {
         if (Cookies.get("carItem") == undefined) {
             //若目前沒有 carItem 這個 key 的 Cookie ，直接新增一個，並只對購物車頁面設定 Cookie
-            Cookies.set("carItem", item, { path: '/car' })
+            Cookies.set("carItem", item)
         }
         else {
-            //有的話就用逗號將品項做分隔再加入至 carItem 中
-            currentItem = Cookies.get("carItem");
-            currentItem = currentItem + "," + item;
-            Cookies.set("carItem", currentItem, { path: '/car' });
+            if (item = Cookies.set("carItem", item)) {
+                alert("已加入過購物車");
+            }
+            else {
+                //有的話就用逗號將品項做分隔再加入至 carItem 中
+                currentItem = Cookies.get("carItem");
+                currentItem = currentItem + "/" + item;
+                Cookies.set("carItem", currentItem);
+            }
         }
-        alert("已加入" + item + "購物車");
+        alert("已加入購物車");
     }
 };
+
+var delCarfun = {
+    delToCar: function () {
+        Cookies.remove("carItem");
+        alert("已移除購物車");
+    }
+}
 
 //圖片不存在
 function noImg() {
