@@ -11,7 +11,7 @@
             for (var i in data) {
                 rows += "<tr>" +
                     "<td>" + data[i].f_id + "</td>" +
-                    "<td>" + "<img src='" + data[i].f_img + "' onerror='noImg()' />" + "</td>" +
+                    "<td>" + "<img style='width: 120px;' src='" + data[i].f_img + "' onerror='noImg()' />" + "</td>" +
                     "<td>" + data[i].f_name + "</td>" +
                     "<td>" + data[i].f_price + "</td>" +
                     "<td>" + data[i].f_stock + "</td>" +

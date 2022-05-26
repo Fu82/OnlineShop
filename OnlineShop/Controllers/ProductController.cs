@@ -17,6 +17,16 @@ namespace OnlineShop.Controllers
         //SQL連線字串 SQLConnectionString
         private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
 
+        //建立DataTable表單
+        private static DataTable CarDatatable()
+        {
+            DataTable dt = new DataTable();
+            DataColumn[] dtc = new DataColumn[1];
+            dtc[0] = new DataColumn("f_id", System.Type.GetType("System.Int32"));
+            dt.Columns.AddRange(dtc);
+            return dt;
+        }
+
         //商品相關----------------------------
         //取得產品資料
         [HttpGet("GetProduct")]
@@ -106,15 +116,24 @@ namespace OnlineShop.Controllers
         [HttpGet("GetCar")]
         public string GetCar([FromQuery] int id)
         {
-            //cookie 帶條件回來   string car = '1,2';
+            //cookie 帶條件回來
             //SQL 進庫依照條件找資料
-            var CarID = "";
-            var ICarID = "";
-            //CarID = HttpContext.Session.GetString("MemberID");
+            var carItem = "";
+            string[] CarID = new string[0];
             if (Request.Cookies.ContainsKey("carItem"))
             {
-                CarID = Request.Cookies["carItem"];
-                ICarID = CarID.Replace("/", ",");
+                carItem = Request.Cookies["carItem"];
+                CarID = carItem.Split("/");
+            }
+
+            DataTable Cardt = CarDatatable();
+
+            //CarID判斷有幾個數
+            for (var i = 0; i < CarID.Length; i++)
+            {
+                DataRow dr = Cardt.NewRow();
+                dr[0] = CarID[i];
+                Cardt.Rows.Add(dr);
             }
 
             SqlCommand cmd = null;
@@ -125,8 +144,10 @@ namespace OnlineShop.Controllers
                 // 資料庫連線&SQL指令
                 cmd = new SqlCommand();
                 cmd.Connection = new SqlConnection(SQLConnectionString);
-                cmd.CommandText = @"EXEC pro_onlineShop_getProductCar @CarID";
-                cmd.Parameters.AddWithValue("@CarID", ICarID);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                //cmd.CommandText = @"EXEC pro_onlineShop_getProductCar @ProductCar ";
+                cmd.CommandText = @"[dbo].[pro_onlineShop_getProductCar]";
+                cmd.Parameters.AddWithValue("@ProductCar", Cardt);
 
                 //開啟連線
                 cmd.Connection.Open();

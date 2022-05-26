@@ -127,20 +127,17 @@ var addCarfun = {
     addToCar: function (item) {
         if (Cookies.get("carItem") == undefined) {
             //若目前沒有 carItem 這個 key 的 Cookie ，直接新增一個，並只對購物車頁面設定 Cookie
-            Cookies.set("carItem", item)
+            Cookies.set("carItem", item);
+            alert("加入購物車");
+        } else if (Cookies.get("carItem", item) == item) {
+            alert("已加入過購物車");
+        } else {
+            //有的話就用逗號將品項做分隔再加入至 carItem 中
+            currentItem = Cookies.get("carItem");
+            currentItem = currentItem + "/" + item;
+            Cookies.set("carItem", currentItem);
+            alert("加入購物車");
         }
-        else {
-            if (item = Cookies.set("carItem", item)) {
-                alert("已加入過購物車");
-            }
-            else {
-                //有的話就用逗號將品項做分隔再加入至 carItem 中
-                currentItem = Cookies.get("carItem");
-                currentItem = currentItem + "/" + item;
-                Cookies.set("carItem", currentItem);
-            }
-        }
-        alert("已加入購物車");
     }
 };
 
